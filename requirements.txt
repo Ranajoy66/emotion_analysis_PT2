@@ -1,0 +1,13 @@
+flask 
+pyttsx3
+SpeechRecognition
+pandas
+scikit-learn
+nltk
+joblib
+matplotlib
+transformers
+datasets
+evaluate
+imblearn
+requests
