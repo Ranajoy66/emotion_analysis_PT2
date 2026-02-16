@@ -1,10 +1,18 @@
 from flask import Flask, render_template, jsonify, request, session
-import os, io, json, random, base64, requests
+import os, io, json, random, base64
 import pandas as pd
 import matplotlib.pyplot as plt
 import subprocess
 import sys
 import speech_recognition as sr
+# import mysql.connector
+# from mysql.connector import Error
+from database import engine, SessionLocal
+from db_models import Base, SessionResult
+
+
+from dotenv import load_dotenv
+load_dotenv()
 
 from questions import questions
 from scripts.predict_lr import predict_with_probs
@@ -12,51 +20,57 @@ from scripts.predict_lr import predict_with_probs
 app = Flask(__name__)
 app.secret_key = "supersecretkey"   # required for sessions
 
+# Create tables automatically
+Base.metadata.create_all(bind=engine)
+
+
 # ===== Paths =====
 RESULTS_CSV = "data/session_results.csv"
 os.makedirs("data", exist_ok=True)
 
-# ===== GitHub Config =====
-GITHUB_REPO = "Sutanu-59/Emotion_Analysis"
-FILE_PATH = "data/session_results.csv"
-BRANCH = "main"
-TOKEN = os.environ.get("GITHUB_TOKEN")  # safer than hardcoding
-
 # ===== Load Metrics =====
 with open("models/tfidf_emotion/metrics.json", "r") as f:
     metrics = json.load(f)
-
 classes = metrics["classes"]
 
-def update_csv_on_github(df_new):
-    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{FILE_PATH}"
-    headers = {"Authorization": f"token {TOKEN}"}
 
-    r = requests.get(url, headers=headers)
+# # MySQL connectionProvider
+# def get_db_connection():
+#     return mysql.connector.connect(
+#         host="localhost",
+#         user="root",
+#         password=os.environ.get("MYSQL_PASSWORD"),
+#         database="emotion_analysis"
+#     )
 
-    if r.status_code == 200:
-        sha = r.json()["sha"]
-        csv_content = base64.b64decode(r.json()["content"]).decode()
-        df_old = pd.read_csv(io.StringIO(csv_content))
-        df_final = pd.concat([df_old, df_new], ignore_index=True)
-    else:
-        sha = None
-        df_final = df_new
 
-    csv_data = df_final.to_csv(index=False)
+# MySQL insert function
+def insert_into_mysql(result):
+    try:
+        db = SessionLocal()
 
-    data = {
-        "message": "Update session results from Flask app",
-        "content": base64.b64encode(csv_data.encode()).decode(),
-        "branch": BRANCH
-    }
+        new_record = SessionResult(
+            patient_id=result["PatientID"],
+            anger=result.get("Anger", 0),
+            anxiety=result.get("Anxiety", 0),
+            depression=result.get("Depression", 0),
+            normal_emotion=result.get("Normal", 0),
+            personality_disorder=result.get("Personality disorder", 0),
+            sadness=result.get("Sadness", 0),
+            suicidal=result.get("Suicidal", 0),
+        )
 
-    if sha:
-        data["sha"] = sha
+        db.add(new_record)
+        db.commit()
+        db.close()
 
-    res = requests.put(url, headers=headers, json=data)
-    return res.status_code in [200, 201]
+        return True
 
+    except Exception as e:
+        print("SQLAlchemy Error:", e)
+        return False
+
+# session["q_index"] = 0
 
 @app.route("/")
 def index():
@@ -71,13 +85,14 @@ def start():
     session["responses"] = []
     session["predictions"] = []
     session["probabilities"] = []
-    session["questions"] = random.sample(questions, 10)
+    session["questions"] = random.sample(questions, 5)
 
     return jsonify({"status": "started"})
 
 @app.route("/question")
 def get_question():
     q_index = session.get("q_index", 0)
+    print(q_index)
     questions_list = session.get("questions", [])
 
     if q_index >= len(questions_list):
@@ -137,23 +152,47 @@ def listen():
     })
 
 
+# @app.route("/answer", methods=["POST"])
+# def submit_answer():
+#     answer = request.json.get("answer")
+#     q_index = session["q_index"]
+
+#     pred, probs, _ = predict_with_probs(answer)
+
+#     session["responses"].append({
+#         "question": session["questions"][q_index],
+#         "answer": answer
+#     })
+
+#     session["predictions"].append(pred)
+#     session["probabilities"].append(probs)
+#     # session["q_index"] += 1
+
+#     return jsonify({"status": "saved"})
+
 @app.route("/answer", methods=["POST"])
 def submit_answer():
     answer = request.json.get("answer")
-    q_index = session["q_index"]
+    q_index = session.get("q_index", 0)
+
+    if q_index < len(session.get("questions", [])):
+        return jsonify({"done": True})
 
     pred, probs, _ = predict_with_probs(answer)
 
     session["responses"].append({
-        "question": session["questions"][q_index],
+        "question": session["questions"][q_index-1],
         "answer": answer
     })
 
     session["predictions"].append(pred)
     session["probabilities"].append(probs)
-    # session["q_index"] += 1
+
+    # ✅ increment index
+    session["q_index"] += 1
 
     return jsonify({"status": "saved"})
+
 
 
 @app.route("/finish")
@@ -165,9 +204,9 @@ def finish():
     result = {"PatientID": session["patient_id"]}
     result.update(mean_probs)
 
-    # Save CSV
-    df = pd.DataFrame([result])
-    success = update_csv_on_github(df)
+    success = insert_into_mysql(result)
+
+    print(session["q_index"])
 
     # --------- CREATE ATTRACTIVE BAR CHART ----------
 
@@ -227,7 +266,8 @@ def finish():
         "saved": success,
         "chart": chart_base64
     })
+
     
 
 if __name__ == "__main__":
-    app.run(debug=True, host="127.0.0.1", port=5000)
+    app.run(debug=True)

@@ -11,12 +11,12 @@
 
     <!-- Survey Card -->
     <div class="card" id="surveyCard">
-        <h1>Depression Counselling Survey</h1>
+        <h1>Emotional Counselling Survey</h1>
 
         <!-- Start Section -->
         <div id="startSection">
             <input id="pid" placeholder="Enter Patient ID">
-            <button class="primary-btn" onclick="start()">Start Session</button>
+            <button class="start-btn" onclick="start()">Start Session</button>
         </div>
 
         <!-- Question Section -->
@@ -27,9 +27,11 @@
             </div>
 
             <textarea id="answer" placeholder="Speak your answer here..."></textarea>
-            <button type="button" class="primary-btn" onclick="startListening(event)">Microphone</button>
-
-            <button class="primary-btn" onclick="next()">Next</button>
+            
+            <div class="action-buttons">
+                <button type="button" class="speak-btn" onclick="startListening()">Speak</button>
+                <button class="next-btn" id="nextBtn" onclick="next()">Next</button>
+            </div>
         </div>
     </div>
 
@@ -77,10 +79,14 @@ async function loadQuestion() {
         `Question ${d.index} of ${d.total}`;
 
     document.getElementById("question").innerText = d.question;
+
+    // button changes to Submit while last question
+    const nextBtn=document.getElementById("nextBtn")
+    if(d.index===d.total){nextBtn.innerText="Submit"}else{nextBtn.innerText="Next"}
 }
 
-async function startListening(e) {
-    e.preventDefault();
+async function startListening() {
+    // e.preventDefault();
 
     const answerBox = document.getElementById("answer");
     answerBox.value = "Listening...";
@@ -101,6 +107,7 @@ let currentIndex = 0;
 
 async function next() {
     
+    const answerBox = document.getElementById("answer");
     const userAnswer = answer.value.trim();
     if (!userAnswer) return;
 
@@ -114,6 +121,10 @@ async function next() {
     });
 
     currentIndex++;
+
+    answerBox.value=""
+    answerBox.placeholder="Speak your answer here..."
+
     loadQuestion();
 }
 

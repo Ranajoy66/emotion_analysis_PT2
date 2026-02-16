@@ -11,3 +11,7 @@ datasets
 evaluate
 imblearn
 requests
+mysql-connector-python
+python-dotenv
+sqlalchemy 
+pymysql

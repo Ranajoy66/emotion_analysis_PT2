@@ -62,21 +62,63 @@ input:focus, textarea:focus {
 }
 
 /* Buttons */
-.primary-btn {
-    width: 100%;
-    padding: 14px;
+button {
     border: none;
-    background: linear-gradient(135deg, #6a11cb, #2575fc);
-    color: white;
-    font-size: 16px;
-    border-radius: 30px;
     cursor: pointer;
-    transition: 0.3s;
+    font-size: 16px;
+    font-weight: 500;
+    transition: 0.3s ease;
 }
 
-.primary-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+/* Start Session Button*/
+
+.start-btn {
+    width: 30%;
+    padding: 14px;
+    margin-top: 15px;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: white;
+}
+
+.start-btn:hover {
+    transform: scale(1.03);
+    opacity: 0.95;
+}
+
+/* Speak & Next Buttons*/
+
+.action-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 20px;
+}
+
+/* Speak Button */
+.speak-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 35px;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: white;
+}
+
+.speak-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Next Button */
+.next-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 35px;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: white;
+}
+
+.next-btn:hover {
+    transform: scale(1.05);
 }
 
 /* Question Box */
@@ -118,6 +160,13 @@ input:focus, textarea:focus {
         height: 120px;
     }
 }
+
+@media (max-width: 500px) {
+    .action-buttons {
+        flex-direction: column;
+    }
+}
+
 
 /* Animation */
 @keyframes fadeIn {
