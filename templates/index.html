@@ -81,8 +81,8 @@ async function loadQuestion() {
     document.getElementById("question").innerText = d.question;
 
     // button changes to Submit while last question
-    const nextBtn=document.getElementById("nextBtn")
-    if(d.index===d.total){nextBtn.innerText="Submit"}else{nextBtn.innerText="Next"}
+    const nextBtn = document.getElementById("nextBtn");
+    nextBtn.innerText = (d.index === d.total) ? "Submit" : "Next";
 }
 
 async function startListening() {
@@ -103,7 +103,7 @@ async function startListening() {
 }
 
 
-let currentIndex = 0;
+// let currentIndex = 0;
 
 async function next() {
     
@@ -116,11 +116,11 @@ async function next() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
             answer: userAnswer,
-            index: currentIndex
+            // index: currentIndex
         })
     });
 
-    currentIndex++;
+    // currentIndex++;
 
     answerBox.value=""
     answerBox.placeholder="Speak your answer here..."
