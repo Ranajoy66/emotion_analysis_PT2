@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Emotion Counselling</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="main-container">
+
+    <!-- Survey Card -->
+    <div class="card" id="surveyCard">
+        <h1>Emotional Counselling Survey</h1>
+
+        <!-- Start Section -->
+        <div id="startSection">
+            <input id="pid" placeholder="Enter Patient ID">
+            <button class="start-btn" onclick="start()">Start Session</button>
+        </div>
+
+        <!-- Question Section -->
+        <div id="survey" style="display:none;">
+            <div class="question-box">
+                <p id="progress"></p>
+                <h3 id="question"></h3>
+            </div>
+
+            <textarea id="answer" placeholder="Speak your answer here..."></textarea>
+            
+            <div class="action-buttons">
+                <button type="button" class="speak-btn" onclick="startListening()">Speak</button>
+                <button class="next-btn" id="nextBtn" onclick="next()">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Section (Below Survey) -->
+    <div class="card result-card" id="resultContainer" style="display:none;">
+        <h3>Emotion Prediction Result</h3>
+        <img id="chartImage" />
+    </div>
+
+</div>
+
+<script>
+async function start(){
+    await fetch("/start", {
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({patient_id: pid.value})
+    });
+
+    document.getElementById("answer").innerText="Speak your answer here...";
+    document.getElementById("startSection").style.display="none";
+    document.getElementById("survey").style.display="block";
+    loadQuestion();
+}
+
+async function loadQuestion() {
+    let r = await fetch("/question");
+    
+    let d = await r.json();
+
+    if (d.done) {
+        let res = await fetch("/finish");
+        let out = await res.json();
+
+        document.getElementById("survey").style.display = "none";
+        document.getElementById("resultContainer").style.display = "block";
+
+        document.getElementById("chartImage").src =
+            "data:image/png;base64," + out.chart;
+
+        return;
+    }
+
+    document.getElementById("progress").innerText =
+        `Question ${d.index} of ${d.total}`;
+
+    document.getElementById("question").innerText = d.question;
+
+    // button changes to Submit while last question
+    const nextBtn = document.getElementById("nextBtn");
+    nextBtn.innerText = (d.index === d.total) ? "Submit" : "Next";
+}
+
+async function startListening() {
+    // e.preventDefault();
+
+    const answerBox = document.getElementById("answer");
+    answerBox.value = "Listening...";
+
+    let res = await fetch("/listen", { method: "POST" });
+    let data = await res.json();
+
+    if (data.error) {
+        answerBox.value = data.error;
+        return;
+    }
+
+    answerBox.value = data.text;
+}
+
+
+// let currentIndex = 0;
+
+async function next() {
+    
+    const answerBox = document.getElementById("answer");
+    const userAnswer = answer.value.trim();
+    if (!userAnswer) return;
+
+    await fetch("/answer", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            answer: userAnswer,
+            // index: currentIndex
+        })
+    });
+
+    // currentIndex++;
+
+    answerBox.value=""
+    answerBox.placeholder="Speak your answer here..."
+
+    loadQuestion();
+}
+
+</script>
+
+</body>
+</html>

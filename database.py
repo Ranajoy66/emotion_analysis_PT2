@@ -8,7 +8,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 MYSQL_USER = "root"
-MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")
+# MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")
+MYSQL_PASSWORD = 1234
 MYSQL_HOST = "localhost"
 MYSQL_DB = "emotion_db"
 

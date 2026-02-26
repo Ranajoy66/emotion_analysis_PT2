@@ -73,6 +73,10 @@ def insert_into_mysql(result):
 # session["q_index"] = 0
 
 @app.route("/")
+def home():
+    return render_template("home.html")
+
+@app.route("/survey")
 def index():
     return render_template("index.html")
 
