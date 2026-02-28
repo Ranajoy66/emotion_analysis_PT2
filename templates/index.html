@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real-Time Emotion Detection</title>
+</head>
+<body>
+    <h2>Live Facial Emotion Detection</h2>
+
+    <video id="video" width="640" height="480" autoplay playsinline></video>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+
+    <h3>Detected Emotion:</h3>
+    <h2 id="emotion">Waiting...</h2>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
