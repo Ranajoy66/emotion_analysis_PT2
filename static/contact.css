@@ -1,0 +1,93 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(180deg, #fdf6f0 0%, #f7ebe1 100%);
+  color: #4a4a4a;
+}
+
+.container {
+  max-width: 800px;
+  margin: auto;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+h1 {
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+.subtitle {
+  color: #6a6a6a;
+  margin-bottom: 50px;
+  line-height: 1.6;
+}
+
+form {
+  text-align: left;
+  margin-top: 30px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  transition: 0.3s ease;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: #d8a47f;
+  box-shadow: 0 0 6px rgba(216, 164, 127, 0.3);
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.submit-btn {
+  margin-top: 30px;
+  padding: 14px 36px;
+  border-radius: 30px;
+  border: none;
+  font-size: 15px;
+  background: #d8a47f;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.submit-btn:hover {
+  background: #c58e6d;
+  transform: scale(1.03);
+}
+
+.info-section {
+  margin-top: 60px;
+  font-size: 14px;
+  color: #777;
+}
+
+footer {
+  margin-top: 80px;
+  font-size: 13px;
+  color: #999;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 50px 20px;
+  }
+}

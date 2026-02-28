@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Contact | Mind Space</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='contact.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>We’re Here to Listen.</h1>
+
+      <p class="subtitle">
+        If you have questions, feedback, or simply wish to reach out, we welcome
+        your message. This space is built with care — and your voice matters.
+      </p>
+
+      <form method="POST" action="#">
+        <label>Your Name</label>
+        <input type="text" name="name" placeholder="Enter your name" />
+
+        <label>Email Address</label>
+        <input type="email" name="email" placeholder="Enter your email" />
+
+        <label>Your Message</label>
+        <textarea
+          name="message"
+          placeholder="Share your thoughts..."
+        ></textarea>
+
+        <button class="submit-btn">Send Message</button>
+      </form>
+
+      <div class="info-section">
+        <p>
+          Please note: Mind Space is an AI-based emotional analysis tool. It is
+          not a replacement for professional medical or psychological advice.
+        </p>
+      </div>
+
+      <footer>Mind Space • Designed for emotional well-being</footer>
+    </div>
+  </body>
+</html>

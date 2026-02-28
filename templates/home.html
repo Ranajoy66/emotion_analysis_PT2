@@ -7,6 +7,15 @@
 </head>
 <body>
 
+<div class="nav">
+    <div class="title">Mindful Space</div>
+    <div class="buttons">
+        <a class="button" href="{{ url_for('home') }}">Let's Talk</a>
+        <a class="button" href="{{ url_for('about') }}">Know Us</a>
+        <a class="button" href="{{ url_for('contact') }}">Connect</a>
+    </div>
+</div>
+
 <div class="container">
 
     <h1>You’re Safe Here.</h1>
@@ -18,12 +27,14 @@
     <div class="card">
         <p>
             This is a calm, judgment-free environment designed to help you reflect,
-            breathe, and understand what you’re feeling — one small step at a time.
+            breathe, and understand what you’re feeling.
         </p>
 
         <a href="{{ url_for('index') }}">
             <button class="cta-btn">Begin Gently</button>
         </a>
+
+        <p><i>one small step at a time</i></p>
     </div>
 
     <div class="section">
