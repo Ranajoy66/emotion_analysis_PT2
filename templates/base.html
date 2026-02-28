@@ -1,17 +1,72 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-    <title>{% block title %}Emotion Counselling{% endblock %}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
+  <head>
+    <title>Mindful Space</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="static/home.css" />
+  </head>
+  <body>
+    <div class="nav">
+      <div class="title">Mindful Space</div>
+      <div class="buttons">
+        <a class="button" href="{{ url_for('home') }}">Let's Talk</a>
+        <a class="button" href="{{ url_for('about') }}">Know Us</a>
+        <a class="button" href="{{ url_for('contact') }}">Connect</a>
+      </div>
+    </div>
 
-<div class="main-container">
-    {% block content %}{% endblock %}
-</div>
+    <div class="container" style="padding-top: 2%">
+      {% block content %}
 
-{% block scripts %}{% endblock %}
+      <h1>You’re Safe Here.</h1>
+      <p class="subtitle">
+        A quiet space to understand your thoughts, explore your emotions, and
+        move gently toward clarity.
+      </p>
 
-</body>
+      <div class="card">
+        <p>
+          This is a calm, judgment-free environment designed to help you
+          reflect, breathe, and understand what you’re feeling.
+        </p>
+
+        <a href="{{ url_for('index') }}">
+          <button class="cta-btn">Begin Gently</button>
+        </a>
+
+        <p><i>one small step at a time</i></p>
+      </div>
+
+      <div class="section">
+        <h3>🌿 Slow & Simple</h3>
+        <p>
+          No overwhelming dashboards. No pressure. Just thoughtful questions and
+          supportive guidance designed to meet you where you are.
+        </p>
+      </div>
+
+      <div class="section">
+        <h3>🕊 Private & Respectful</h3>
+        <p>
+          Your reflections are handled with care. This space is meant to feel
+          personal, safe, and entirely yours.
+        </p>
+      </div>
+
+      <div class="section">
+        <h3>🌅 Small Steps Matter</h3>
+        <p>
+          Healing isn’t instant. Awareness is the first step. And you’ve already
+          taken it by being here.
+        </p>
+      </div>
+
+      {% endblock %}
+    </div>
+
+    <!-- <footer>Built with care • Designed for emotional well-being</footer> -->
+
+    <!-- <footer>Mind Space • Designed for emotional well-being</footer> -->
+    <footer>Mind Space • Built with empathy & thoughtful technology</footer>
+  </body>
 </html>

@@ -1,76 +1,61 @@
-<!doctype html>
-<html>
-  <head>
-    <title>About | Mind Space</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='about.css') }}"
-    />
-  </head>
-  <body>
-    <div class="container">
-      <div class="hero">
-        <h1>About Mind Space</h1>
-        <p>
-          Mind Space was created as a gentle digital companion — a place where
-          emotions can be explored without judgment, pressure, or noise.
-        </p>
-      </div>
+{% extends "base.html" %} {% block content %}
+<div class="hero">
+  <h1>About Mind Space</h1>
+  <p>
+    Mind Space was created as a gentle digital companion — a place where
+    emotions can be explored without judgment, pressure, or noise.
+  </p>
+</div>
 
-      <div class="section">
-        <h3>🌿 Our Purpose</h3>
-        <p>
-          In a fast-moving world, emotional reflection is often neglected. Mind
-          Space uses artificial intelligence to help individuals understand
-          emotional patterns in a calm and structured way. It is not here to
-          diagnose — it is here to encourage awareness.
-        </p>
-      </div>
+<div class="section">
+  <h3>🌿 Our Purpose</h3>
+  <p>
+    In a fast-moving world, emotional reflection is often neglected. Mind Space
+    uses artificial intelligence to help individuals understand emotional
+    patterns in a calm and structured way. It is not here to diagnose — it is
+    here to encourage awareness.
+  </p>
+</div>
 
-      <div class="section">
-        <h3>🧠 How It Works</h3>
-        <p>
-          Through guided questions and natural language analysis, our system
-          evaluates emotional indicators such as anxiety, sadness, anger, and
-          more. Results are visualized clearly, helping users recognize trends
-          in their emotional state.
-        </p>
+<div class="section">
+  <h3>🧠 How It Works</h3>
+  <p>
+    Through guided questions and natural language analysis, our system evaluates
+    emotional indicators such as anxiety, sadness, anger, and more. Results are
+    visualized clearly, helping users recognize trends in their emotional state.
+  </p>
 
-        <div class="highlight-box">
-          Emotional clarity begins with self-awareness. Technology should
-          support reflection — not replace human care.
-        </div>
-      </div>
+  <div class="highlight-box">
+    Emotional clarity begins with self-awareness. Technology should support
+    reflection — not replace human care.
+  </div>
+</div>
 
-      <div class="section">
-        <h3>💛 Our Values</h3>
+<div class="section">
+  <h3>💛 Our Values</h3>
 
-        <div class="values">
-          <div class="value-card">
-            <h4>Compassion</h4>
-            <p>
-              Every interaction is designed to feel respectful, supportive, and
-              gentle.
-            </p>
-          </div>
-
-          <div class="value-card">
-            <h4>Privacy</h4>
-            <p>Emotional data is handled carefully and stored securely.</p>
-          </div>
-
-          <div class="value-card">
-            <h4>Clarity</h4>
-            <p>
-              Insights are presented in a simple and understandable way,
-              avoiding overwhelming complexity.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <footer>Mind Space • Built with empathy & thoughtful technology</footer>
+  <div class="values">
+    <div class="value-card">
+      <h4>Compassion</h4>
+      <p>
+        Every interaction is designed to feel respectful, supportive, and
+        gentle.
+      </p>
     </div>
-  </body>
-</html>
+
+    <div class="value-card">
+      <h4>Privacy</h4>
+      <p>Emotional data is handled carefully and stored securely.</p>
+    </div>
+
+    <div class="value-card">
+      <h4>Clarity</h4>
+      <p>
+        Insights are presented in a simple and understandable way, avoiding
+        overwhelming complexity.
+      </p>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
