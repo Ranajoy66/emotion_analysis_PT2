@@ -1,0 +1,9 @@
+{
+    "Anger": 0,
+    "Anxiety": 1,
+    "Depression": 2,
+    "Normal": 3,
+    "Personality disorder": 4,
+    "Sadness": 5,
+    "Suicidal": 6
+}

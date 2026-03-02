@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Emotion Counselling</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="main-container">
+
+    <!-- Survey Card -->
+    <div class="card" id="surveyCard">
+        <h1>Depression Counselling Survey</h1>
+
+        <!-- Start Section -->
+        <div id="startSection">
+            <input id="pid" placeholder="Enter Patient ID">
+            <button class="primary-btn" onclick="start()">Start Session</button>
+        </div>
+
+        <!-- Question Section -->
+        <div id="survey" style="display:none;">
+            <div class="question-box">
+                <p id="progress"></p>
+                <h3 id="question"></h3>
+            </div>
+
+            <textarea id="answer" placeholder="Type your answer here..."></textarea>
+
+            <button class="primary-btn" onclick="next()">Next</button>
+        </div>
+    </div>
+
+    <!-- Result Section (Below Survey) -->
+    <div class="card result-card" id="resultContainer" style="display:none;">
+        <h3>Emotion Prediction Result</h3>
+        <img id="chartImage" />
+    </div>
+
+</div>
+
+<script>
+async function start(){
+    await fetch("/start", {
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({patient_id: pid.value})
+    });
+
+    document.getElementById("startSection").style.display="none";
+    document.getElementById("survey").style.display="block";
+    loadQuestion();
+}
+
+async function loadQuestion(){
+    let r = await fetch("/question");
+    let d = await r.json();
+
+    if(d.done){
+        let res = await fetch("/finish");
+        let out = await res.json();
+
+        document.getElementById("survey").style.display="none";
+        document.getElementById("resultContainer").style.display="block";
+
+        document.getElementById("chartImage").src =
+            "data:image/png;base64," + out.chart;
+
+        return;
+    }
+
+    document.getElementById("progress").innerText =
+        `Question ${d.index} of ${d.total}`;
+
+    document.getElementById("question").innerText =
+        d.question;
+}
+
+async function next(){
+    await fetch("/answer", {
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({answer: answer.value})
+    });
+
+    answer.value="";
+    loadQuestion();
+}
+</script>
+
+</body>
+</html>
