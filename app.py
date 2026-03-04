@@ -144,7 +144,7 @@ def listen():
 
     session["predictions"].append(pred)
     session["probabilities"].append(probs)
-    session["q_index"] += 1
+    # session["q_index"] += 1
 
     return jsonify({
         "status": "saved",
@@ -175,7 +175,7 @@ def submit_answer():
     answer = request.json.get("answer")
     q_index = session.get("q_index", 0)
 
-    if q_index < len(session.get("questions", [])):
+    if q_index >= len(session.get("questions", [])):
         return jsonify({"done": True})
 
     pred, probs, _ = predict_with_probs(answer)
