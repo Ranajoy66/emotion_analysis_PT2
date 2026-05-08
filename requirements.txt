@@ -11,8 +11,10 @@ datasets
 evaluate
 imblearn
 requests
-mysql-connector-python
+#mysql-connector-python
 python-dotenv
 sqlalchemy 
 pymysql
 pyaudio
+opencv-python 
+deepface

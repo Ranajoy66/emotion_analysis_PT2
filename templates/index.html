@@ -2,26 +2,67 @@
 endblock %} {% block content %}
 
 <div class="card" id="surveyCard">
+
   <h1>Emotional Counselling Survey</h1>
+  <div class="session-wrapper">
+
+    <!-- AI -->
+    <div id="aiAssistantContainer">
+
+      <div id="audioAura"></div>
+
+      <img id="aiAvatar" src="{{ url_for('static', filename='ai_Avatar.png') }}" />
+
+      <!-- <h3>AI Counsellor</h3> -->
+
+    </div>
+
+    <!-- VIDEO -->
+    <div id="videoContainer">
+
+      <video id="video" autoplay playsinline></video>
+
+      <canvas id="canvas" width="300" height="220" style="display:none;"></canvas>
+
+      <div id="userVoiceBars">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+      </div>
+
+    </div>
+
+  </div>
 
   <div id="startSection">
     <input id="pid" placeholder="Enter Patient ID" />
-    <button class="start-btn" onclick="start()">Start Session</button>
+
+    <button class="start-btn" onclick="startSession()">
+      Start Session
+    </button>
   </div>
 
   <div id="survey" style="display: none">
+
     <div class="question-box">
-      <p id="progress"></p>
+      <!-- <p id="progress"></p> -->
       <h3 id="question"></h3>
     </div>
 
-    <textarea id="answer" placeholder="Speak your answer here..."></textarea>
+    <input id="answer" placeholder="Your answer here..." readonly></input>
 
     <div class="action-buttons">
+
       <button type="button" class="speak-btn" onclick="startListening()">
         Speak
       </button>
-      <button class="next-btn" id="nextBtn" onclick="next()">Next</button>
+
+      <button class="next-btn" id="nextBtn" onclick="next()">
+        Next
+      </button>
+
     </div>
   </div>
 </div>
@@ -32,12 +73,22 @@ endblock %} {% block content %}
 </div>
 
 <script>
-  async function start() {
+  async function startSession() {
+    const pid = document.getElementById("pid").value;
+
+    if (!pid) {
+      alert("Enter Patient ID");
+      return;
+    }
     await fetch("/start", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ patient_id: pid.value }),
-    });
+      body: JSON.stringify({ patient_id: pid }),
+    })
+    console.log("Voice session started");
+
+    // ✅ NEW: Start video system ALSO
+    startVideoSystem();
 
     document.getElementById("answer").innerText = "Speak your answer here...";
     document.getElementById("startSection").style.display = "none";
@@ -46,11 +97,13 @@ endblock %} {% block content %}
   }
 
   async function loadQuestion() {
+
     let r = await fetch("/question");
 
     let d = await r.json();
 
     if (d.done) {
+      stopCamera()
       let res = await fetch("/finish");
       let out = await res.json();
 
@@ -63,10 +116,18 @@ endblock %} {% block content %}
       return;
     }
 
-    document.getElementById("progress").innerText =
-      `Question ${d.index} of ${d.total}`;
+    document.getElementById("question").innerText =
+      "Q" + d.index + ". " + d.question;
 
-    document.getElementById("question").innerText = d.question;
+    startAISpeakingEffect();
+    
+    // DYNAMIC STOP
+    const speakingTime =
+      Math.max(d.question.length * 90, 4000);
+    
+      setTimeout(() => {
+      stopAISpeakingEffect();
+    }, speakingTime);
 
     // button changes to Submit while last question
     const nextBtn = document.getElementById("nextBtn");
@@ -75,6 +136,7 @@ endblock %} {% block content %}
 
   async function startListening() {
     // e.preventDefault();
+    startUserVoiceBars();
 
     const answerBox = document.getElementById("answer");
     answerBox.value = "Listening...";
@@ -84,17 +146,19 @@ endblock %} {% block content %}
 
     if (data.error) {
       answerBox.value = data.error;
+      stopUserVoiceBars();
       return;
     }
 
     answerBox.value = data.text;
+    stopUserVoiceBars();
   }
 
   // let currentIndex = 0;
 
   async function next() {
     const answerBox = document.getElementById("answer");
-    const userAnswer = answer.value.trim();
+    const userAnswer = answerBox.value.trim();
     if (!userAnswer) return;
 
     await fetch("/answer", {
@@ -113,10 +177,115 @@ endblock %} {% block content %}
 
     loadQuestion();
   }
+
+  let stream = null;
+
+  let video = document.getElementById("video");
+  let canvas = document.getElementById("canvas");
+  let ctx = canvas.getContext("2d");
+
+  let detectionInterval = null;
+
+  // START CAMERA
+  function startCamera() {
+
+    navigator.mediaDevices.getUserMedia({
+      video: true
+    })
+      .then(mediaStream => {
+
+        stream = mediaStream;
+        video.srcObject = mediaStream;
+
+      })
+      .catch(err => {
+
+        alert("Camera permission denied");
+
+      });
+  }
+
+  // STOP CAMERA
+  function stopCamera() {
+    clearInterval(detectionInterval);
+    detectionInterval = null;
+
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+    }
+
+    video.srcObject = null;
+
+    // HIDE VIDEO
+    document.getElementById("videoContainer").style.display = "none";
+
+    // HIDE AI
+    document.getElementById("aiAssistantContainer").style.display = "none";
+  }
+
+  // START VIDEO DETECTION
+  function startVideoSystem() {
+    // SHOW VIDEO CONTAINER
+    document.getElementById("videoContainer").style.display = "block";
+    // SHOW AI CONTAINER
+    document.getElementById("aiAssistantContainer").style.display = "block";
+
+    startCamera();
+
+    if (detectionInterval) return;
+
+    detectionInterval = setInterval(() => {
+
+      ctx.drawImage(
+        video,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+      const image = canvas.toDataURL("image/jpeg");
+
+      fetch("/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ image })
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log(data);
+        });
+
+    }, 2000);
+  }
+
+  const aura = document.getElementById("audioAura");
+  const voiceBars = document.querySelectorAll(".bar");
+
+  // AI SPEAKING EFFECT
+  function startAISpeakingEffect() {
+    aura.classList.add("active");
+  }
+
+  function stopAISpeakingEffect() {
+    aura.classList.remove("active");
+  }
+
+  // USER SPEAKING EFFECT
+  function startUserVoiceBars() {
+    voiceBars.forEach(bar => {
+      bar.classList.add("active");
+    });
+  }
+
+  function stopUserVoiceBars() {
+    voiceBars.forEach(bar => {
+      bar.classList.remove("active");
+    });
+  }
+
 </script>
 
-{% endblock %} {% block scripts %}
-<script>
-  /* Your existing JS stays here exactly */
-</script>
 {% endblock %}

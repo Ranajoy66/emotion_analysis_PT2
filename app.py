@@ -1,14 +1,22 @@
 from flask import Flask, render_template, jsonify, request, session
 import os, io, json, random, base64
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import subprocess
 import sys
 import speech_recognition as sr
-# import mysql.connector
-# from mysql.connector import Error
 from database import engine, SessionLocal
 from db_models import Base, SessionResult
+import cv2
+from deepface import DeepFace
+import csv
+from datetime import datetime
+import base64
+
+
+# import mysql.connector
+# from mysql.connector import Error
 
 
 from dotenv import load_dotenv
@@ -23,26 +31,28 @@ app.secret_key = "supersecretkey"   # required for sessions
 # Create tables automatically
 Base.metadata.create_all(bind=engine)
 
-
-# ===== Paths =====
+# ================= FILE PATHS =================
+CSV_FILE = "emotion_log.csv"
+IMAGE_FOLDER = "captured_frames"
+os.makedirs(IMAGE_FOLDER, exist_ok=True)
 RESULTS_CSV = "data/session_results.csv"
 os.makedirs("data", exist_ok=True)
+
+# Create CSV if not exists
+if not os.path.exists(CSV_FILE) or os.stat(CSV_FILE).st_size == 0:
+    with open(CSV_FILE, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([
+            "timestamp", "angry", "disgust", "fear",
+            "happy", "sad", "surprise", "neutral", "dominant"
+        ])
+
+
 
 # ===== Load Metrics =====
 with open("models/tfidf_emotion/metrics.json", "r") as f:
     metrics = json.load(f)
 classes = metrics["classes"]
-
-
-# # MySQL connectionProvider
-# def get_db_connection():
-#     return mysql.connector.connect(
-#         host="localhost",
-#         user="root",
-#         password=os.environ.get("MYSQL_PASSWORD"),
-#         database="emotion_analysis"
-#     )
-
 
 # MySQL insert function
 def insert_into_mysql(result):
@@ -88,6 +98,83 @@ def contact():
 def about():
     return render_template("about.html")
 
+
+
+camera_image_saved = False
+# ================= VIDEO EMOTION =================
+@app.route('/analyze', methods=['POST'])
+def analyze():
+    global camera_image_saved
+
+    try:
+        data = request.json.get('image')
+
+        if not data:
+            return jsonify({'error': 'No image data received'})
+
+        encoded_data = data.split(',')[1]
+        np_arr = np.frombuffer(base64.b64decode(encoded_data), np.uint8)
+        img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+        if img is None:
+            return jsonify({'error': 'Image decoding failed'})
+
+        result = DeepFace.analyze(
+            img,
+            actions=['emotion'],
+            detector_backend='opencv',
+            enforce_detection=False
+        )
+
+        emotions = {
+            key: float(value)
+            for key, value in result[0]['emotion'].items()
+        }
+
+        dominant_emotion = str(result[0]['dominant_emotion'])
+
+        # SAVE ONLY FIRST CAMERA FRAME
+        if not camera_image_saved:
+
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+            image_path = os.path.join(
+                IMAGE_FOLDER,
+                f"camera_access_{timestamp}.jpg"
+            )
+
+            cv2.imwrite(image_path, img)
+
+            print(f"Camera access image saved: {image_path}")
+
+            camera_image_saved = True
+
+        # Save to CSV
+        with open(CSV_FILE, mode='a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([
+                datetime.now(),
+                emotions.get('angry', 0),
+                emotions.get('disgust', 0),
+                emotions.get('fear', 0),
+                emotions.get('happy', 0),
+                emotions.get('sad', 0),
+                emotions.get('surprise', 0),
+                emotions.get('neutral', 0),
+                dominant_emotion
+            ])
+
+        return jsonify({
+            'dominant_emotion': dominant_emotion,
+            'emotions': emotions
+        })
+
+    except Exception as e:
+        print("ERROR:", e)
+        return jsonify({'error': str(e)})
+
+
+# ================= VOICE SYSTEM =================
 @app.route("/start", methods=["POST"])
 def start():
     patient_id = request.json.get("patient_id")
@@ -164,24 +251,6 @@ def listen():
     })
 
 
-# @app.route("/answer", methods=["POST"])
-# def submit_answer():
-#     answer = request.json.get("answer")
-#     q_index = session["q_index"]
-
-#     pred, probs, _ = predict_with_probs(answer)
-
-#     session["responses"].append({
-#         "question": session["questions"][q_index],
-#         "answer": answer
-#     })
-
-#     session["predictions"].append(pred)
-#     session["probabilities"].append(probs)
-#     # session["q_index"] += 1
-
-#     return jsonify({"status": "saved"})
-
 @app.route("/answer", methods=["POST"])
 def submit_answer():
     answer = request.json.get("answer")
@@ -206,9 +275,11 @@ def submit_answer():
     return jsonify({"status": "saved"})
 
 
-
 @app.route("/finish")
 def finish():
+    global camera_image_saved
+    camera_image_saved = False
+
     prob_df = pd.DataFrame(session["probabilities"])
     mean_probs = prob_df.mean().to_dict()
     mean_probs = {cls: round(mean_probs.get(cls, 0) * 100, 2) for cls in classes}

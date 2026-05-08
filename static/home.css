@@ -51,7 +51,7 @@ a {
   color: #4a4a4a;
   padding: 2.5vh 3vh;
   transition: all 0.5s ease-in-out;
-  /* background-color: bisque */
+  background-color: bisque;
   border-radius: 0 40vh 0 40vh;
 }
 
@@ -139,6 +139,7 @@ footer {
   h1 {
     font-size: 28px;
   }
+
   .card {
     padding: 25px;
   }
@@ -146,13 +147,13 @@ footer {
 
 /* SURVEY CSS */
 
-.card {
-  background: white;
-  padding: 35px;
-  padding-top: 10vh;
-  border-radius: 18px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-  margin-bottom: 30px;
+#surveyCard {
+  width: 780px;
+  margin: 40px auto;
+  padding: 25px;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 4px 25px rgba(0,0,0,0.08);
   animation: fadeIn 0.6s ease-in-out;
 }
 
@@ -169,8 +170,7 @@ h3 {
 }
 
 /* Input Fields */
-input,
-textarea {
+input {
   width: 100%;
   padding: 14px;
   margin-bottom: 20px;
@@ -180,9 +180,25 @@ textarea {
   transition: 0.3s;
 }
 
-input:focus,
+input:focus {
+  border-color: bisque;
+  outline: none;
+  box-shadow: 0 0 8px rgba(106, 17, 203, 0.3);
+}
+
+textarea {
+  width: 100%;
+  height: 120px;
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  resize: none;
+  font-size: 15px;
+}
+
 textarea:focus {
-  border-color: #6a11cb;
+  border-color: bisque;
   outline: none;
   box-shadow: 0 0 8px rgba(106, 17, 203, 0.3);
 }
@@ -203,11 +219,14 @@ button {
   padding: 14px;
   margin-top: 15px;
   border-radius: 30px;
-  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  background: #d8a47f;
   color: white;
+  font-family: cursive;
+  font-weight: bold;
 }
 
 .start-btn:hover {
+  background: #c58e6d;
   transform: scale(1.03);
   opacity: 0.95;
 }
@@ -218,7 +237,7 @@ button {
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
-  gap: 20px;
+  gap: 15px;
 }
 
 /* Speak Button */
@@ -226,12 +245,14 @@ button {
   flex: 1;
   padding: 14px;
   border-radius: 35px;
-  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  background: #d8a47f;
   color: white;
 }
 
 .speak-btn:hover {
-  transform: scale(1.05);
+  background: #c58e6d;
+  transform: scale(1.03);
+  opacity: 0.95;
 }
 
 /* Next Button */
@@ -239,12 +260,14 @@ button {
   flex: 1;
   padding: 14px;
   border-radius: 35px;
-  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  background: #d8a47f;
   color: white;
 }
 
 .next-btn:hover {
-  transform: scale(1.05);
+  background: #c58e6d;
+  transform: scale(1.03);
+  opacity: 0.95;
 }
 
 /* Question Box */
@@ -253,12 +276,6 @@ button {
   padding: 20px;
   border-radius: 12px;
   margin-bottom: 20px;
-}
-
-#progress {
-  font-size: 14px;
-  color: #6a11cb;
-  margin-bottom: 8px;
 }
 
 /* Result Section */
@@ -270,6 +287,170 @@ button {
   width: 100%;
   max-width: 700px;
   margin-top: 20px;
+}
+
+/* MAIN SESSION LAYOUT */
+/* MAIN SESSION LAYOUT */
+.session-wrapper {
+  width: 100%;
+  display: flex;
+  /* justify-content: space-between; */
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+/* AI AVATAR BOX */
+#aiAssistantContainer {
+  display: none;
+  height: 350px;
+  width: 350px;
+  min-width: 350px;
+  background: white;
+  border-radius: 16px;
+  padding: 12px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+/* AI IMAGE */
+#aiAvatar {
+  width: 300px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 50%;
+  position: relative;
+  z-index: 2;
+}
+
+/* GLOW EFFECT */
+#audioAura {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: rgba(0, 132, 255, 0.35);
+  top: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  filter: blur(20px);
+  opacity: 0;
+  z-index: 1;
+}
+
+/* ACTIVE AI SPEAKING */
+#audioAura.active {
+  animation: pulseAura 1.2s infinite ease-in-out;
+  opacity: 1;
+}
+
+@keyframes pulseAura {
+  0% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: translateX(-50%) scale(1.2);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.5;
+  }
+}
+
+/* VIDEO CONTAINER */
+#videoContainer {
+  display: none;
+  position: relative;
+  overflow: hidden;
+  height: 350px;
+  width: 350px;
+  min-width: 200px;
+  background: white;
+  border-radius: 16px;
+  padding: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+#video {
+  width: 95%;
+  height: 310px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* USER AUDIO BARS */
+#userVoiceBars {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+  height: 18px;
+  padding: 4px 8px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+}
+
+.bar {
+  width: 4px;
+  height: 5px;
+  border-radius: 20px;
+  background: #ffffff;
+}
+
+.bar.active {
+  animation: voiceBars 0.5s infinite alternate;
+}
+
+.bar:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.bar:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.bar:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+.bar:nth-child(5) {
+  animation-delay: 0.4s;
+}
+
+@keyframes voiceBars {
+  from {
+    height: 4px;
+  }
+
+  to {
+    height: 16px;
+  }
+}
+
+#pid {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+#emotion {
+  margin-top: 10px;
+  font-weight: bold;
+  color: #333;
 }
 
 /* Responsive */
@@ -299,6 +480,7 @@ button {
     opacity: 0;
     transform: translateY(15px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
