@@ -18,3 +18,4 @@ pymysql
 pyaudio
 opencv-python 
 deepface
+tf-keras
