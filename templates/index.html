@@ -68,8 +68,11 @@ endblock %} {% block content %}
 </div>
 
 <div class="card result-card" id="resultContainer" style="display: none">
-  <h3>Emotion Prediction Result</h3>
+  <h3>Emotion Prediction Result Based on Voice Interaction</h3>
   <img id="chartImage" />
+  <!-- Video Emotion Chart -->
+   <h3>Emotion Prediction Result Based on Video Monitoring</h3>
+  <img id="videoChartImage" />
 </div>
 
 <script>
@@ -111,7 +114,10 @@ endblock %} {% block content %}
       document.getElementById("resultContainer").style.display = "block";
 
       document.getElementById("chartImage").src =
-        "data:image/png;base64," + out.chart;
+        "data:image/png;base64," + out.audio_chart;
+
+      document.getElementById("videoChartImage").src =
+      "data:image/png;base64," + out.video_chart;
 
       return;
     }

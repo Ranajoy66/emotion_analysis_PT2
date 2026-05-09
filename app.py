@@ -1,5 +1,15 @@
+import os
+# ── Suppress TensorFlow / oneDNN noise before any TF import ──────────────────
+os.environ["TF_CPP_MIN_LOG_LEVEL"]  = "3"   # hide C++ INFO / WARNING / ERROR logs
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"   # disable oneDNN (removes port.cc msgs)
+os.environ["ABSL_MIN_LOG_LEVEL"]    = "3"   # silence absl logging noise
+import logging
+logging.getLogger("tensorflow").setLevel(logging.ERROR)
+logging.getLogger("absl").setLevel(logging.ERROR)
+# ─────────────────────────────────────────────────────────────────────────────
+
 from flask import Flask, render_template, jsonify, request, session
-import os, io, json, random, base64
+import io, json, random, base64
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,7 +22,7 @@ import cv2
 from deepface import DeepFace
 import csv
 from datetime import datetime
-import base64
+from collections import Counter
 
 
 # import mysql.connector
@@ -343,12 +353,117 @@ def finish():
 
 
     chart_base64 = base64.b64encode(img.getvalue()).decode()
+    
+    
+    # ---------------- VIDEO EMOTION ANALYSIS ----------------
+
+    # Read video emotion CSV
+    video_df = pd.read_csv("emotion_log.csv")
+
+    # Get dominant emotions column
+    video_emotions = video_df["dominant"].tolist()
+
+    # Count each emotion
+    emotion_counts = Counter(video_emotions)
+
+    # Total predictions
+    total = sum(emotion_counts.values())
+
+    # Convert to percentage
+    video_percentages = {
+        emotion: round((count / total) * 100, 2)
+        for emotion, count in emotion_counts.items()
+    }
+
+    # Emotion colors
+    video_emotion_colors = {
+        "happy": "#2ecc71",
+        "sad": "#3498db",
+        "angry": "#e74c3c",
+        "fear": "#9b59b6",
+        "surprise": "#f1c40f",
+        "neutral": "#95a5a6",
+        "disgust": "#16a085"
+    }
+
+    # Labels & values
+    video_labels = list(video_percentages.keys())
+    video_values = list(video_percentages.values())
+
+    # Matching colors
+    video_colors = [
+        video_emotion_colors.get(label.lower(), "#6a11cb")
+        for label in video_labels
+    ]
+
+    # Create chart
+    plt.figure(figsize=(12, 6))
+
+    bars = plt.bar(
+        video_labels,
+        video_values,
+        color=video_colors
+    )
+
+    plt.ylim(0, 100)
+
+    plt.ylabel(
+        "Dominant Emotion Percentage (%)",
+        fontsize=12,
+        fontweight="bold"
+    )
+
+    plt.title(
+        "Video Emotion Analysis",
+        fontsize=16,
+        fontweight="bold"
+    )
+
+    plt.xticks(rotation=30, ha='right', fontsize=11)
+    plt.yticks(fontsize=11)
+
+    # Add percentage text
+    for bar in bars:
+        height = bar.get_height()
+
+        plt.text(
+            bar.get_x() + bar.get_width() / 2,
+            height + 1,
+            f'{height:.1f}%',
+            ha='center',
+            fontsize=10,
+            fontweight='bold'
+        )
+
+    plt.grid(axis='y', linestyle='--', alpha=0.5)
+
+    plt.tight_layout()
+
+    # Convert chart to Base64
+    video_img = io.BytesIO()
+
+    plt.savefig(
+        video_img,
+        format='png',
+        dpi=200,
+        bbox_inches='tight'
+    )
+
+    video_img.seek(0)
+
+    plt.close()
+
+    video_chart_base64 = base64.b64encode(
+        video_img.getvalue()
+    ).decode()
 
     return jsonify({
-        "result": result,
-        "saved": success,
-        "chart": chart_base64
-    })
+    "result": result,
+    "saved": success,
+    "audio_chart": chart_base64,
+    "video_chart": video_chart_base64,
+    "video_percentages": video_percentages
+})
 
     
 
