@@ -17,7 +17,7 @@ import subprocess
 import sys
 import speech_recognition as sr
 from database import engine, SessionLocal
-from db_models import Base, SessionResult
+from db_models import Base, SessionResult, VideoData
 import cv2
 from deepface import DeepFace
 import csv
@@ -48,14 +48,13 @@ os.makedirs(IMAGE_FOLDER, exist_ok=True)
 RESULTS_CSV = "data/session_results.csv"
 os.makedirs("data", exist_ok=True)
 
-# Create CSV if not exists
-if not os.path.exists(CSV_FILE) or os.stat(CSV_FILE).st_size == 0:
-    with open(CSV_FILE, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow([
-            "timestamp", "angry", "disgust", "fear",
-            "happy", "sad", "surprise", "neutral", "dominant"
-        ])
+# Always reset CSV on startup — clears previous session data
+with open(CSV_FILE, mode='w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow([
+        "timestamp", "angry", "disgust", "fear",
+        "happy", "sad", "surprise", "neutral", "dominant"
+    ])
 
 
 
@@ -90,15 +89,48 @@ def insert_into_mysql(result):
         print("SQLAlchemy Error:", e)
         return False
 
+
+def insert_video_data(patient_id, video_percentages):
+    """Save per-session facial emotion percentages to the video_data table."""
+    try:
+        db = SessionLocal()
+        record = VideoData(
+            patient_id=patient_id,
+            angry=video_percentages.get("angry", 0),
+            disgust=video_percentages.get("disgust", 0),
+            fear=video_percentages.get("fear", 0),
+            happy=video_percentages.get("happy", 0),
+            sad=video_percentages.get("sad", 0),
+            surprise=video_percentages.get("surprise", 0),
+            neutral=video_percentages.get("neutral", 0),
+        )
+        db.add(record)
+        db.commit()
+        db.close()
+        return True
+    except Exception as e:
+        print("VideoData DB Error:", e)
+        return False
+
 # session["q_index"] = 0
 
 @app.route("/")
 def home():
     return render_template("base.html")
 
-@app.route("/survey")
-def index():
-    return render_template("index.html")
+@app.route("/chat")
+def chat():
+    return render_template("chat.html")
+
+@app.route("/voice")
+def voice():
+    return render_template("voice.html")
+
+
+@app.route("/video")
+def video():
+    return render_template("video.html")
+
 
 @app.route("/contact")
 def contact():
@@ -360,19 +392,12 @@ def finish():
     # Read video emotion CSV
     video_df = pd.read_csv("emotion_log.csv")
 
-    # Get dominant emotions column
-    video_emotions = video_df["dominant"].tolist()
+    # Always show all 7 emotions — compute mean of raw % columns across all frames
+    emotion_cols = ["angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"]
 
-    # Count each emotion
-    emotion_counts = Counter(video_emotions)
-
-    # Total predictions
-    total = sum(emotion_counts.values())
-
-    # Convert to percentage
     video_percentages = {
-        emotion: round((count / total) * 100, 2)
-        for emotion, count in emotion_counts.items()
+        col: round(float(video_df[col].mean()), 2) if col in video_df.columns else 0
+        for col in emotion_cols
     }
 
     # Emotion colors
@@ -457,13 +482,280 @@ def finish():
         video_img.getvalue()
     ).decode()
 
+    # Save video emotion percentages to DB
+    insert_video_data(session.get("patient_id", "unknown"), video_percentages)
+
     return jsonify({
-    "result": result,
-    "saved": success,
-    "audio_chart": chart_base64,
-    "video_chart": video_chart_base64,
-    "video_percentages": video_percentages
-})
+        "result": result,
+        "saved": success,
+        "audio_chart": chart_base64,
+        "video_chart": video_chart_base64,
+        "video_percentages": video_percentages
+    })
+
+
+@app.route("/finish_chat")
+def finish_chat():
+    prob_df = pd.DataFrame(session["probabilities"])
+    mean_probs = prob_df.mean().to_dict()
+    mean_probs = {cls: round(mean_probs.get(cls, 0) * 100, 2) for cls in classes}
+
+    result = {"PatientID": session["patient_id"]}
+    result.update(mean_probs)
+
+    # Save database
+    success = insert_into_mysql(result)
+
+    # --------- CREATE ATTRACTIVE BAR CHART ----------
+
+    labels = list(mean_probs.keys())
+    values = list(mean_probs.values())
+
+    # Custom colors for each emotion
+    emotion_colors = {
+        "Anger": "#e74c3c",
+        "Anxiety": "#f39c12",
+        "Depression": "#8e44ad",
+        "Normal": "#2ecc71",
+        "Personality disorder": "#3498db",
+        "Sadness": "#5dade2",
+        "Suicidal": "#2c3e50"
+    }
+
+    colors = [emotion_colors.get(label, "#6a11cb") for label in labels]
+
+    plt.figure(figsize=(12, 6))
+    bars = plt.bar(labels, values, color=colors)
+
+    plt.ylim(0, 100)
+    plt.ylabel("Probability (%)", fontsize=12, fontweight="bold")
+    plt.title("Emotion Prediction Result", fontsize=16, fontweight="bold")
+
+    # Rotate labels properly
+    plt.xticks(rotation=30, ha='right', fontsize=11)
+    plt.yticks(fontsize=11)
+
+    # Add percentage values on top of bars
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(
+            bar.get_x() + bar.get_width() / 2,
+            height + 2,
+            f'{height:.1f}%',
+            ha='center',
+            fontsize=10,
+            fontweight='bold'
+        )
+
+    plt.grid(axis='y', linestyle='--', alpha=0.5)
+    plt.tight_layout()
+
+    img = io.BytesIO()
+    plt.savefig(img, format='png', dpi=200, bbox_inches='tight')
+    img.seek(0)
+    plt.close()
+
+
+    chart_base64 = base64.b64encode(img.getvalue()).decode()
+
+    return jsonify({
+        "result": result,
+        "saved": success,
+        "chart": chart_base64
+    })
+
+
+@app.route("/finish_voice")
+def finish_voice():
+    prob_df = pd.DataFrame(session["probabilities"])
+    mean_probs = prob_df.mean().to_dict()
+    mean_probs = {cls: round(mean_probs.get(cls, 0) * 100, 2) for cls in classes}
+
+    result = {"PatientID": session["patient_id"]}
+    result.update(mean_probs)
+
+    success = insert_into_mysql(result)
+
+    print(session["q_index"])
+
+    # --------- CREATE ATTRACTIVE BAR CHART ----------
+
+    # print(session)
+    labels = list(mean_probs.keys())
+    values = list(mean_probs.values())
+
+    # Custom colors for each emotion
+    emotion_colors = {
+        "Anger": "#e74c3c",
+        "Anxiety": "#f39c12",
+        "Depression": "#8e44ad",
+        "Normal": "#2ecc71",
+        "Personality disorder": "#3498db",
+        "Sadness": "#5dade2",
+        "Suicidal": "#2c3e50"
+    }
+
+    colors = [emotion_colors.get(label, "#6a11cb") for label in labels]
+
+    plt.figure(figsize=(12, 6))
+    bars = plt.bar(labels, values, color=colors)
+
+    plt.ylim(0, 100)
+    plt.ylabel("Probability (%)", fontsize=12, fontweight="bold")
+    plt.title("Emotion Prediction Result", fontsize=16, fontweight="bold")
+
+    # Rotate labels properly
+    plt.xticks(rotation=30, ha='right', fontsize=11)
+    plt.yticks(fontsize=11)
+
+    # Add percentage values on top of bars
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(
+            bar.get_x() + bar.get_width() / 2,
+            height + 2,
+            f'{height:.1f}%',
+            ha='center',
+            fontsize=10,
+            fontweight='bold'
+        )
+
+    plt.grid(axis='y', linestyle='--', alpha=0.5)
+    plt.tight_layout()
+
+    img = io.BytesIO()
+    plt.savefig(img, format='png', dpi=200, bbox_inches='tight')
+    img.seek(0)
+    plt.close()
+
+
+    chart_base64 = base64.b64encode(img.getvalue()).decode()
+
+    return jsonify({
+        "result": result,
+        "saved": success,
+        "chart": chart_base64
+    })
+
+# @app.route("/start_chat", methods=["POST"])
+# def start_chat():
+#     patient_id = request.json.get("patient_id")
+
+#     session["patient_id"] = patient_id
+#     session["q_index"] = 0
+#     session["responses"] = []
+#     session["predictions"] = []
+#     session["probabilities"] = []
+#     session["questions"] = random.sample(questions, 5)
+
+#     return jsonify({"status": "started"})
+
+@app.route("/question_chat")
+def get_question_chat():
+    q_index = session.get("q_index", 0)
+    qs = session.get("questions", [])
+    questions_list = session.get("questions", [])
+
+    if q_index >= len(questions_list):
+        return jsonify({"done": True})
+
+    if q_index < len(qs):
+        return jsonify({
+            "question": qs[q_index],
+            "index": q_index + 1,
+            "total": len(qs)
+        })
+    else:
+        return jsonify({"done": True})
+
+# @app.route("/answer_chat", methods=["POST"])
+# def submit_answer_chat():
+#     answer = request.json.get("answer")
+#     q_index = session["q_index"]
+
+#     pred, probs, _ = predict_with_probs(answer)
+
+#     session["responses"].append({
+#         "question": session["questions"][q_index],
+#         "answer": answer
+#     })
+
+#     session["predictions"].append(pred)
+#     session["probabilities"].append(probs)
+#     session["q_index"] += 1
+
+#     return jsonify({"status": "saved"})
+
+
+# @app.route("/finish_chat")
+# def finish_chat():
+#     prob_df = pd.DataFrame(session["probabilities"])
+#     mean_probs = prob_df.mean().to_dict()
+#     mean_probs = {cls: round(mean_probs.get(cls, 0) * 100, 2) for cls in classes}
+
+#     result = {"PatientID": session["patient_id"]}
+#     result.update(mean_probs)
+
+#     # Save database
+#     success = insert_into_mysql(result)
+
+#     # --------- CREATE ATTRACTIVE BAR CHART ----------
+
+#     labels = list(mean_probs.keys())
+#     values = list(mean_probs.values())
+
+#     # Custom colors for each emotion
+#     emotion_colors = {
+#         "Anger": "#e74c3c",
+#         "Anxiety": "#f39c12",
+#         "Depression": "#8e44ad",
+#         "Normal": "#2ecc71",
+#         "Personality disorder": "#3498db",
+#         "Sadness": "#5dade2",
+#         "Suicidal": "#2c3e50"
+#     }
+
+#     colors = [emotion_colors.get(label, "#6a11cb") for label in labels]
+
+#     plt.figure(figsize=(12, 6))
+#     bars = plt.bar(labels, values, color=colors)
+
+#     plt.ylim(0, 100)
+#     plt.ylabel("Probability (%)", fontsize=12, fontweight="bold")
+#     plt.title("Emotion Prediction Result", fontsize=16, fontweight="bold")
+
+#     # Rotate labels properly
+#     plt.xticks(rotation=30, ha='right', fontsize=11)
+#     plt.yticks(fontsize=11)
+
+#     # Add percentage values on top of bars
+#     for bar in bars:
+#         height = bar.get_height()
+#         plt.text(
+#             bar.get_x() + bar.get_width() / 2,
+#             height + 2,
+#             f'{height:.1f}%',
+#             ha='center',
+#             fontsize=10,
+#             fontweight='bold'
+#         )
+
+#     plt.grid(axis='y', linestyle='--', alpha=0.5)
+#     plt.tight_layout()
+
+#     img = io.BytesIO()
+#     plt.savefig(img, format='png', dpi=200, bbox_inches='tight')
+#     img.seek(0)
+#     plt.close()
+
+
+#     chart_base64 = base64.b64encode(img.getvalue()).decode()
+
+#     return jsonify({
+#         "result": result,
+#         "saved": success,
+#         "chart": chart_base64
+#     })
 
     
 
