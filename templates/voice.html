@@ -24,11 +24,10 @@
             <!-- Question Section -->
             <div id="survey" style="display:none;">
                 <div class="question-box">
-                    <p id="progress"></p>
                     <h3 id="question"></h3>
                 </div>
 
-                <textarea id="answer" placeholder="Speak your answer here..."></textarea>
+                <textarea id="answer" placeholder="Speak your answer here..." readonly></textarea>
 
                 <div class="action-buttons">
                     <button type="button" class="speak-btn" onclick="startListening()">Speak</button>
@@ -41,6 +40,11 @@
         <div class="card result-card" id="resultContainer" style="display:none;">
             <h3>Emotion Prediction Result</h3>
             <img id="chartImage" />
+        </div>
+
+        <div id="loaderContainer" style="display:none;">
+            <div class="loader"></div>
+            <h2>Generating Emotion Analysis Response...</h2>
         </div>
 
     </div>
@@ -65,22 +69,29 @@
             let d = await r.json();
 
             if (d.done) {
+                // HIDE QUESTION SECTION
+                document.getElementById("survey").style.display = "none";
+
+                // SHOW LOADER
+                document.getElementById("loaderContainer").style.display = "flex";
+
+                // WAIT FOR FINAL RESULT
                 let res = await fetch("/finish_voice");
                 let out = await res.json();
 
-                document.getElementById("survey").style.display = "none";
+                // HIDE LOADER
+                document.getElementById("loaderContainer").style.display = "none";
+
+                // SHOW RESULT
                 document.getElementById("resultContainer").style.display = "block";
 
                 document.getElementById("chartImage").src =
-                    "data:image/png;base64," + out.chart;
+                    "data:image/png;base64," + out.audio_chart;
 
                 return;
             }
 
-            document.getElementById("progress").innerText =
-                `Question ${d.index} of ${d.total}`;
-
-            document.getElementById("question").innerText = d.question;
+            document.getElementById("question").innerText = "Q" + d.index + ". " + d.question;;
 
             // button changes to Submit while last question
             const nextBtn = document.getElementById("nextBtn");

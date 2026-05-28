@@ -561,7 +561,7 @@ def finish_chat():
     return jsonify({
         "result": result,
         "saved": success,
-        "chart": chart_base64
+        "chat_chart": chart_base64
     })
 
 
@@ -634,7 +634,7 @@ def finish_voice():
     return jsonify({
         "result": result,
         "saved": success,
-        "chart": chart_base64
+        "audio_chart": chart_base64
     })
 
 # @app.route("/start_chat", methods=["POST"])
