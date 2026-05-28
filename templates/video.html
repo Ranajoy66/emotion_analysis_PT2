@@ -71,8 +71,14 @@ endblock %} {% block content %}
   <h3>Emotion Prediction Result Based on Voice Interaction</h3>
   <img id="chartImage" />
   <!-- Video Emotion Chart -->
-   <h3>Emotion Prediction Result Based on Video Monitoring</h3>
+  <h3>Emotion Prediction Result Based on Video Monitoring</h3>
   <img id="videoChartImage" />
+</div>
+
+<!-- LOADER -->
+<div id="loaderContainer" style="display:none;">
+  <div class="loader"></div>
+  <h2>Generating Emotion Analysis Response...</h2>
 </div>
 
 <script>
@@ -106,18 +112,32 @@ endblock %} {% block content %}
     let d = await r.json();
 
     if (d.done) {
-      stopCamera()
+      // HIDE QUESTION SECTION
+      document.getElementById("survey").style.display = "none";
+
+      // HIDE VIDEO CONTAINER
+      document.getElementById("videoContainer").style.display = "none";
+
+      // SHOW LOADER
+      document.getElementById("loaderContainer").style.display = "flex";
+
+      stopCamera();
+
+      // WAIT FOR FINAL RESULT
       let res = await fetch("/finish");
       let out = await res.json();
 
-      document.getElementById("survey").style.display = "none";
+      // HIDE LOADER
+      document.getElementById("loaderContainer").style.display = "none";
+
+      // SHOW RESULT
       document.getElementById("resultContainer").style.display = "block";
 
       document.getElementById("chartImage").src =
         "data:image/png;base64," + out.audio_chart;
 
       document.getElementById("videoChartImage").src =
-      "data:image/png;base64," + out.video_chart;
+        "data:image/png;base64," + out.video_chart;
 
       return;
     }
@@ -126,12 +146,12 @@ endblock %} {% block content %}
       "Q" + d.index + ". " + d.question;
 
     startAISpeakingEffect();
-    
+
     // DYNAMIC STOP
     const speakingTime =
       Math.max(d.question.length * 90, 4000);
-    
-      setTimeout(() => {
+
+    setTimeout(() => {
       stopAISpeakingEffect();
     }, speakingTime);
 

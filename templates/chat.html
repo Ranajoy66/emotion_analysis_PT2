@@ -24,7 +24,6 @@
             <!-- Question Section -->
             <div id="survey" style="display:none;">
                 <div class="question-box">
-                    <p id="progress"></p>
                     <h3 id="question"></h3>
                 </div>
 
@@ -38,6 +37,11 @@
         <div class="card result-card" id="resultContainer" style="display:none;">
             <h3>Emotion Prediction Result</h3>
             <img id="chartImage" />
+        </div>
+
+        <div id="loaderContainer" style="display:none;">
+            <div class="loader"></div>
+            <h2>Generating Emotion Analysis Response...</h2>
         </div>
 
     </div>
@@ -60,23 +64,30 @@
             let d = await r.json();
 
             if (d.done) {
+                // HIDE QUESTION SECTION
+                document.getElementById("survey").style.display = "none";
+
+                // SHOW LOADER
+                document.getElementById("loaderContainer").style.display = "flex";
+
+                // WAIT FOR FINAL RESULT
                 let res = await fetch("/finish_chat");
                 let out = await res.json();
 
-                document.getElementById("survey").style.display = "none";
+                // HIDE LOADER
+                document.getElementById("loaderContainer").style.display = "none";
+
+                // SHOW RESULT
                 document.getElementById("resultContainer").style.display = "block";
 
                 document.getElementById("chartImage").src =
-                    "data:image/png;base64," + out.chart;
+                    "data:image/png;base64," + out.chat_chart;
 
                 return;
             }
 
-            document.getElementById("progress").innerText =
-                `Question ${d.index} of ${d.total}`;
-
             document.getElementById("question").innerText =
-                d.question;
+                "Q" + d.index + ". " + d.question;
         }
 
         async function next() {
