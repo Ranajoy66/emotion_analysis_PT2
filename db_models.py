@@ -35,3 +35,17 @@ class VideoData(Base):
     sad = Column(Float, default=0)
     surprise = Column(Float, default=0)
     neutral = Column(Float, default=0)
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    patient_id = Column(String(20), unique=True, nullable=False)
+
+    username = Column(String(100), unique=True, nullable=False)
+
+    email = Column(String(150), unique=True, nullable=False)
+
+    password = Column(String(255), nullable=False)
