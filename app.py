@@ -17,7 +17,7 @@ import subprocess
 import sys
 import speech_recognition as sr
 from database import engine, SessionLocal
-from db_models import Base, SessionResult, VideoData
+from db_models import Base, SessionResult, VideoData,User
 import cv2
 from deepface import DeepFace
 import csv
@@ -114,9 +114,97 @@ def insert_video_data(patient_id, video_percentages):
 
 # session["q_index"] = 0
 
+def generate_patient_id(user_id):
+    return f"PAT{user_id:06d}"
+
 @app.route("/")
 def home():
     return render_template("base.html")
+
+@app.route("/register", methods=["GET","POST"])
+def register():
+    if request.method == "GET":
+        return render_template("registerNlogin.html")
+    
+    data = request.json
+
+    action = data.get("action")   # register OR login
+
+    db = SessionLocal()
+
+    # ================= REGISTER =================
+    if action == "register":
+
+        username = data.get("username")
+        email = data.get("email")
+        password = data.get("password")
+
+        # Check existing email
+        existing = db.query(User).filter(
+            User.email == email
+        ).first()
+
+        if existing:
+            db.close()
+            return jsonify({
+                "success": False,
+                "message": "Email already exists"
+            })
+
+        # Auto Patient ID
+        patient_id = "PAT" + str(random.randint(100000, 999999))
+
+        new_user = User(
+            username=username,
+            email=email,
+            password=password,
+            patient_id=patient_id
+        )
+
+        db.add(new_user)
+        db.commit()
+
+        db.close()
+
+        return jsonify({
+            "success": True,
+            "patient_id": patient_id
+        })
+
+    # ================= LOGIN =================
+    elif action == "login":
+
+        email = data.get("email")
+        password = data.get("password")
+
+        user = db.query(User).filter(
+            User.email == email,
+            User.password == password
+        ).first()
+
+        db.close()
+
+        if not user:
+            return jsonify({
+                "success": False,
+                "message": "Invalid credentials"
+            })
+
+        # Store user session
+        session["patient_id"] = user.patient_id
+        session["username"] = user.username
+
+        return jsonify({
+            "success": True,
+            "patient_id": user.patient_id,
+            "username": user.username
+        })
+
+    return jsonify({
+        "success": False,
+        "message": "Invalid action"
+    })
+    
 
 @app.route("/chat")
 def chat():
@@ -219,16 +307,19 @@ def analyze():
 # ================= VOICE SYSTEM =================
 @app.route("/start", methods=["POST"])
 def start():
-    patient_id = request.json.get("patient_id")
+    # patient_id = request.json.get("patient_id")
 
-    session["patient_id"] = patient_id
+    # session["patient_id"] = patient_id
     session["q_index"] = 0
     session["responses"] = []
     session["predictions"] = []
     session["probabilities"] = []
     session["questions"] = random.sample(questions, 5)
 
-    return jsonify({"status": "started"})
+    return jsonify({
+        "patient_id": session["patient_id"],
+        "status": "started"
+    })
 
 @app.route("/question")
 def get_question():
