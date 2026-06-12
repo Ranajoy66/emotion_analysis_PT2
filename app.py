@@ -135,6 +135,7 @@ def register():
     # ================= REGISTER =================
     if action == "register":
 
+        fullname=data.get("fullname")
         username = data.get("username")
         email = data.get("email")
         password = data.get("password")
@@ -155,6 +156,7 @@ def register():
         patient_id = "PAT" + str(random.randint(100000, 999999))
 
         new_user = User(
+            fullname=fullname,
             username=username,
             email=email,
             password=password,
@@ -308,8 +310,8 @@ def analyze():
 @app.route("/start", methods=["POST"])
 def start():
     # patient_id = request.json.get("patient_id")
-
     # session["patient_id"] = patient_id
+
     session["q_index"] = 0
     session["responses"] = []
     session["predictions"] = []

@@ -18,6 +18,10 @@
                     <div class="form sign-up">
                         <div class="input-group">
                             <i class='bx bxs-user'></i>
+                            <input type="text" id="fullname" placeholder="Full Name">
+                        </div>
+                        <div class="input-group">
+                            <i class='bx bxs-user'></i>
                             <input type="text" id="username" placeholder="Username">
                         </div>
                         <div class="input-group">
@@ -53,14 +57,14 @@
                 <div class="form-wrapper align-items-center">
                     <div class="form sign-in">
                         <div class="input-group">
-                            <i class='bx bxs-user'></i>
-                            <input type="text" placeholder="Username">
+                            <i class='bx bx-mail-send'></i>
+                            <input type="email" id="loginEmail" placeholder="Email">
                         </div>
                         <div class="input-group">
                             <i class='bx bxs-lock-alt'></i>
-                            <input type="password" placeholder="Password">
+                            <input type="password" id="loginPassword" placeholder="Password">
                         </div>
-                        <button onclick="register()">
+                        <button onclick="login()">
                             Sign in
                         </button>
                         <!-- <p>
@@ -131,6 +135,7 @@
         }, 200)
 
         function register() {
+            const fullname = document.getElementById("fullname").value;
             const username = document.getElementById("username").value;
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
@@ -142,11 +147,37 @@
                 },
                 body: JSON.stringify({
                     action: "register",
+                    fullname: fullname,
                     username: username,
                     email: email,
                     password: password
                 })
             })
+
+                .then(res => res.json())
+                .then(data => {
+
+                    if (data.success) {
+
+                        alert(
+                            "Registration successful!"
+                        );
+
+                        // Switch to Login form
+                        container.classList.remove("sign-up");
+                        container.classList.add("sign-in");
+                    }
+                    else {
+                        alert(data.message);
+                    }
+                });
+        }
+
+
+        function login() {
+
+            const email = document.getElementById("loginEmail").value;
+            const password = document.getElementById("loginPassword").value;
 
             fetch("/register", {
                 method: "POST",
@@ -163,12 +194,13 @@
                 .then(data => {
 
                     if (data.success) {
-                        window.location.href = "/";  // or dashboard
+                        window.location.href = "/";
                     }
-
+                    else {
+                        alert("Invalid credentials");
+                    }
                 });
         }
-
     </script>
 </body>
 
