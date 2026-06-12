@@ -18,6 +18,7 @@ import sys
 import speech_recognition as sr
 from database import engine, SessionLocal
 from db_models import Base, SessionResult, VideoData,User
+from db_models import Base, SessionResult, VideoData,User
 import cv2
 from deepface import DeepFace
 import csv
@@ -113,6 +114,9 @@ def insert_video_data(patient_id, video_percentages):
         return False
 
 # session["q_index"] = 0
+
+def generate_patient_id(user_id):
+    return f"PAT{user_id:06d}"
 
 def generate_patient_id(user_id):
     return f"PAT{user_id:06d}"
@@ -318,6 +322,10 @@ def start():
     session["probabilities"] = []
     session["questions"] = random.sample(questions, 5)
 
+    return jsonify({
+        "patient_id": session["patient_id"],
+        "status": "started"
+    })
     return jsonify({
         "patient_id": session["patient_id"],
         "status": "started"
