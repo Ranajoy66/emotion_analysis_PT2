@@ -1,77 +1,108 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
   <title>Mindful Space</title>
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="static/home.css" />
 </head>
 
 <body>
-  <div class="nav">
-    <div class="title">Mindful Space</div>
-    <div class="buttons">
-      <a class="button" href="{{ url_for('register') }}">Let's Chat</a>
-      <a class="button" href="{{ url_for('register') }}">Let's Talk</a>
-      <a class="button" href="{{ url_for('register') }}">Take a Counselling</a>
-      <a class="button" href="{{ url_for('about') }}">About us</a>
-      <a class="button" href="{{ url_for('contact') }}">Contact</a>
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-title">Mindful Space</div>
+      <nav class="nav-buttons">
+        <a class="nav-btn" href="{{ url_for('register') }}">Let's Chat</a>
+        <a class="nav-btn" href="{{ url_for('register') }}">Let's Talk</a>
+        <a class="nav-btn" href="{{ url_for('register') }}">Take a Counselling</a>
+        <a class="nav-btn" href="{{ url_for('about') }}">About us</a>
+        <a class="nav-btn" href="{{ url_for('contact') }}">Contact</a>
+      </nav>
     </div>
-  </div>
+  </header>
 
-  <div class="container" style="padding-top: 2%">
+  <main class="app-container">
     {% block content %}
 
-    <h1>You’re Safe Here.</h1>
-    <p class="subtitle">
-      A quiet space to understand your thoughts, explore your emotions, and
-      move gently toward clarity.
-    </p>
+    <section class="hero-section">
+      <h1>You’re Safe Here.</h1>
+      <p class="subtitle">
+        A quiet space to understand your thoughts, explore your emotions, and move gently toward clarity.
+      </p>
+    </section>
 
-    <div class="card">
-      <p>
+    <div class="session-wrapper">
+      <div id="aiAssistantContainer">
+        <img id="aiAvatar" src="" alt="AI" />
+        <div id="audioAura"></div>
+      </div>
+
+      <div id="videoContainer">
+        <video id="video" autoplay muted></video>
+        <div id="userVoiceBars">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="emotion"></div>
+    <div id="pid"></div>
+
+    <section class="content-card">
+      <p class="card-message">
         This is a calm, judgment-free environment designed to help you
         reflect, breathe, and understand what you’re feeling.
       </p>
 
-      <a href="{{ url_for('register') }}">
+      <a href="{{ url_for('register') }}" class="cta-wrapper">
         <button class="cta-btn">Begin Gently</button>
       </a>
 
-      <p><i>one small step at a time</i></p>
-    </div>
+      <p class="micro-tag">one small step at a time</p>
+    </section>
 
-    <div class="section">
-      <h3>🌿 Slow & Simple</h3>
-      <p>
-        No overwhelming dashboards. No pressure. Just thoughtful questions and
-        supportive guidance designed to meet you where you are.
-      </p>
-    </div>
+    <section class="informational-grid">
+      <div class="info-block panel-a">
+        <h3>🌿 Slow & Simple</h3>
+        <p>
+          No overwhelming dashboards. No pressure. Just thoughtful questions and
+          supportive guidance designed to meet you where you are.
+        </p>
+      </div>
 
-    <div class="section">
-      <h3>🕊 Private & Respectful</h3>
-      <p>
-        Your reflections are handled with care. This space is meant to feel
-        personal, safe, and entirely yours.
-      </p>
-    </div>
+      <div class="info-block panel-b">
+        <h3>🕊 Private & Respectful</h3>
+        <p>
+          Your reflections are handled with care. This space is meant to feel
+          personal, safe, and entirely yours.
+        </p>
+      </div>
 
-    <div class="section">
-      <h3>🌅 Small Steps Matter</h3>
-      <p>
-        Healing isn’t instant. Awareness is the first step. And you’ve already
-        taken it by being here.
-      </p>
-    </div>
+      <div class="info-block panel-c">
+        <h3>🌅 Small Steps Matter</h3>
+        <p>
+          Healing isn’t instant. Awareness is the first step. And you’ve already
+          taken it by being here.
+        </p>
+      </div>
+    </section>
 
     {% endblock %}
+  </main>
+
+  <footer class="app-footer">
+    Mind Space • Built with empathy & thoughtful technology
+  </footer>
+
+  <div id="loaderContainer" style="display: none;">
+    <div class="loader"></div>
+    <h2>Assembling environment modules...</h2>
   </div>
-
-  <!-- <footer>Built with care • Designed for emotional well-being</footer> -->
-
-  <!-- <footer>Mind Space • Designed for emotional well-being</footer> -->
-  <footer>Mind Space • Built with empathy & thoughtful technology</footer>
 </body>
 
 </html>
