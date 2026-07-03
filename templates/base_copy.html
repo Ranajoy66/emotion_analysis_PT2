@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Mind Space</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="static/image.png" />
+    <link rel="stylesheet" href="static/home.css" />
+  </head>
+
+  <body>
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="brand-title">Mindful Space</div>
+        <nav class="nav-buttons">
+          <a class="nav-btn" href="{{ url_for('register') }}">Let's Chat</a>
+          <a class="nav-btn" href="{{ url_for('register') }}">Let's Talk</a>
+          <a class="nav-btn" href="{{ url_for('register') }}"
+            >Take a Counselling</a
+          >
+          <a class="nav-btn" href="{{ url_for('about') }}">About us</a>
+          <a class="nav-btn" href="{{ url_for('contact') }}">Contact</a>
+
+          <div class="user-profile-dropdown">
+            {% if session.get('user_name') %}
+            <button class="profile-trigger-btn" type="button">
+              <img
+                class="profile-avatar"
+                src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed={{ session.get('user_id') }}"
+                alt="User Avatar"
+              />
+              <div class="profile-meta">
+                <span class="profile-name">{{ session.get('user_name') }}</span>
+                <span class="profile-id">
+                  ID: #{{ session.get('user_id') }}
+                </span>
+              </div>
+            </button>
+
+            <div class="dropdown-menu-panel">
+              <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
+            </div>
+            {% else %}
+            <button class="profile-trigger-btn fallback-guest" type="button">
+              <img
+                class="profile-avatar"
+                src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed=guest"
+                alt="Guest Avatar"
+              />
+              <div class="profile-meta">
+                <span class="profile-name">Guest Identity</span>
+              </div>
+            </button>
+            <div class="dropdown-menu-panel">
+              <a class="dropdown-item" href="{{ url_for('register') }}"
+                >Login / Register</a
+              >
+            </div>
+            {% endif %}
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main class="app-container">
+      {% block content %}
+
+      <section class="hero-section">
+        <h1>You’re Safe Here.</h1>
+        <p class="subtitle">
+          A quiet space to understand your thoughts, explore your emotions, and
+          move gently toward clarity.
+        </p>
+      </section>
+
+      <div class="session-wrapper">
+        <div id="aiAssistantContainer">
+          <img id="aiAvatar" src="" alt="AI" />
+          <div id="audioAura"></div>
+        </div>
+
+        <div id="videoContainer">
+          <video id="video" autoplay muted></video>
+          <div id="userVoiceBars">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- <div id="emotion"></div>
+    <div id="pid"></div> -->
+
+      <section class="content-card">
+        <p class="card-message">
+          This is a calm, judgment-free environment designed to help you
+          reflect, breathe, and understand what you’re feeling.
+        </p>
+
+        <a href="{{ url_for('register') }}" class="cta-wrapper">
+          <button class="cta-btn">Begin Gently</button>
+        </a>
+
+        <!-- <p class="micro-tag">one small step at a time</p> -->
+        <i>one small step at a time</i>
+      </section>
+
+      <section class="informational-grid">
+        <div class="info-block panel-a">
+          <h3>🌿 Slow & Simple</h3>
+          <p>
+            No overwhelming dashboards. No pressure. Just thoughtful questions
+            and supportive guidance designed to meet you where you are.
+          </p>
+        </div>
+
+        <div class="info-block panel-b">
+          <h3>🕊 Private & Respectful</h3>
+          <p>
+            Your reflections are handled with care. This space is meant to feel
+            personal, safe, and entirely yours.
+          </p>
+        </div>
+
+        <div class="info-block panel-c">
+          <h3>🌅 Small Steps Matter</h3>
+          <p>
+            Healing isn’t instant. Awareness is the first step. And you’ve
+            already taken it by being here.
+          </p>
+        </div>
+      </section>
+
+      {% endblock %}
+    </main>
+
+    <footer class="app-footer">
+      Mind Space • Built with empathy & thoughtful technology
+    </footer>
+
+    
+  </body>
+</html>

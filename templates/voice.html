@@ -1,9 +1,6 @@
-<!DOCTYPE html>
-<html>
+{% extends "base.html" %} {% block content %}
 
 <head>
-    <title>Emotion Counselling</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/style_voice.css">
 </head>
 
@@ -13,7 +10,7 @@
 
         <!-- Survey Card -->
         <div class="card" id="surveyCard">
-            <h1>Emotional Counselling Survey</h1>
+            <h3>Emotional Counselling Survey</h3>
 
             <!-- Start Section -->
             <div id="startSection">
@@ -143,6 +140,4 @@
 
     </script>
 
-</body>
-
-</html>
+{% endblock content %}

@@ -7,14 +7,14 @@
 }
 
 /* Background */
-body {
+/* body {
     min-height: 100vh;
     background: linear-gradient(135deg, #6a11cb, #2575fc);
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px;
-}
+} */
 
 /* Main Layout */
 .main-container {
