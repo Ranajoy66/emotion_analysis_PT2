@@ -37,7 +37,10 @@ endblock %} {% block content %}
   </div>
 
   <div id="startSection">
-    <input id="pid" placeholder="Enter Patient ID" />
+    <p>
+      <strong>Patient ID:</strong>
+      <span id="pid">{{ patient_id }}</span>
+    </p>
 
     <button class="start-btn" onclick="startSession()">
       Start Session
@@ -83,17 +86,10 @@ endblock %} {% block content %}
 
 <script>
   async function startSession() {
-    const pid = document.getElementById("pid").value;
-
-    if (!pid) {
-      alert("Enter Patient ID");
-      return;
-    }
     await fetch("/start", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ patient_id: pid }),
+      method: "POST"
     })
+
     console.log("Voice session started");
 
     // ✅ NEW: Start video system ALSO
@@ -251,39 +247,40 @@ endblock %} {% block content %}
 
   // START VIDEO DETECTION
   function startVideoSystem() {
-    // SHOW VIDEO CONTAINER
     document.getElementById("videoContainer").style.display = "block";
-    // SHOW AI CONTAINER
     document.getElementById("aiAssistantContainer").style.display = "block";
 
     startCamera();
 
     if (detectionInterval) return;
 
-    detectionInterval = setInterval(() => {
+    detectionInterval = setInterval(async () => {
+      try {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      ctx.drawImage(
-        video,
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
+        const image = canvas.toDataURL("image/jpeg");
 
-      const image = canvas.toDataURL("image/jpeg");
-
-      fetch("/analyze", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ image })
-      })
-        .then(res => res.json())
-        .then(data => {
-          console.log(data);
+        const res = await fetch("/analyze", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ image })
         });
 
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        console.log(data);
+
+      } catch (err) {
+        console.error("Analyze request failed:", err);
+
+        clearInterval(detectionInterval);
+        detectionInterval = null;
+      }
     }, 2000);
   }
 

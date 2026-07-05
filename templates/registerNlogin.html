@@ -20,10 +20,10 @@
                             <i class='bx bxs-user'></i>
                             <input type="text" id="fullname" placeholder="Full Name">
                         </div>
-                        <div class="input-group">
+                        <!-- <div class="input-group">
                             <i class='bx bxs-user'></i>
                             <input type="text" id="username" placeholder="Username">
-                        </div>
+                        </div> -->
                         <div class="input-group">
                             <i class='bx bx-mail-send'></i>
                             <input type="email" id="email" placeholder="Email">
@@ -121,6 +121,9 @@
         <!-- END CONTENT SECTION -->
     </div>
 
+    <!-- toast message container -->
+    <div id="toast" class="toast"></div>
+
     <!-- JS portion -->
     <script>
         let container = document.getElementById('container')
@@ -134,9 +137,27 @@
             container.classList.add('sign-in')
         }, 200)
 
+        function showToast(message, type = "success") {
+
+            const toast = document.getElementById("toast");
+
+            toast.className = "toast " + type;
+
+            toast.innerHTML = message;
+
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+
+        }
+
         function register() {
             const fullname = document.getElementById("fullname").value;
-            const username = document.getElementById("username").value;
+            // const username = document.getElementById("username").value;
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
 
@@ -148,7 +169,7 @@
                 body: JSON.stringify({
                     action: "register",
                     fullname: fullname,
-                    username: username,
+                    // username: username,
                     email: email,
                     password: password
                 })
@@ -159,16 +180,14 @@
 
                     if (data.success) {
 
-                        alert(
-                            "Registration successful!"
-                        );
+                        showToast("🎉 Registration successful!", "success");
 
                         // Switch to Login form
                         container.classList.remove("sign-up");
                         container.classList.add("sign-in");
                     }
                     else {
-                        alert(data.message);
+                        showToast(data.message, "error");
                     }
                 });
         }
@@ -194,12 +213,32 @@
                 .then(data => {
 
                     if (data.success) {
+
+                        const firstName = data.fullname.split(" ")[0];
+
+                        // expiry = 2 hours
+                        const expiry = new Date().getTime() + (2 * 60 * 60 * 1000);
+
+                        const userData = {
+                            patient_id: data.patient_id,
+                            fullname: data.fullname,
+                            first_name: firstName,
+                            //expiry: expiry
+                        };
+
+                        localStorage.setItem(
+                            "loggedUser",
+                            JSON.stringify(userData)
+                        );
+
                         window.location.href = "/";
+
+                    } else {
+                        showToast("Incorrect email or password.", "error");
                     }
-                    else {
-                        alert("Invalid credentials");
-                    }
+
                 });
+
         }
     </script>
 </body>

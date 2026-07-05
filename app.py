@@ -8,7 +8,7 @@ logging.getLogger("tensorflow").setLevel(logging.ERROR)
 logging.getLogger("absl").setLevel(logging.ERROR)
 # ─────────────────────────────────────────────────────────────────────────────
 
-from flask import Flask, render_template, jsonify, request, session
+from flask import Flask, redirect, render_template, jsonify, request, session, url_for
 import io, json, random, base64
 import pandas as pd
 import numpy as np
@@ -140,7 +140,7 @@ def register():
     if action == "register":
 
         fullname=data.get("fullname")
-        username = data.get("username")
+        # username = data.get("username")
         email = data.get("email")
         password = data.get("password")
 
@@ -161,7 +161,7 @@ def register():
 
         new_user = User(
             fullname=fullname,
-            username=username,
+            # username=username,
             email=email,
             password=password,
             patient_id=patient_id
@@ -198,12 +198,14 @@ def register():
 
         # Store user session
         session["patient_id"] = user.patient_id
-        session["username"] = user.username
+        session["user_name"] = user.fullname.split()[0]
+        # session["username"] = user.username
 
         return jsonify({
             "success": True,
             "patient_id": user.patient_id,
-            "username": user.username
+            "fullname": user.fullname
+            # "username": user.username
         })
 
     return jsonify({
@@ -212,18 +214,49 @@ def register():
     })
     
 
+@app.route("/logout", methods=["POST"])
+def logout():
+
+    session.clear()
+
+    return jsonify({
+        "success": True
+    })
+
+
 @app.route("/chat")
 def chat():
-    return render_template("chat.html")
+    if "patient_id" not in session:
+        return redirect(url_for("register"))
+
+    return render_template(
+        "chat.html",
+        patient_id=session["patient_id"]
+        )
+
 
 @app.route("/voice")
 def voice():
-    return render_template("voice.html")
+    if "patient_id" not in session:
+        return redirect(url_for("register"))
+
+    return render_template(
+        "voice.html",
+        patient_id=session["patient_id"]
+        )
+
 
 
 @app.route("/video")
 def video():
-    return render_template("video.html")
+    if "patient_id" not in session:
+        return redirect(url_for("register"))
+
+    return render_template(
+        "video.html",
+        patient_id=session["patient_id"]
+        )
+
 
 
 @app.route("/contact")
@@ -236,8 +269,8 @@ def about():
 
 
 
-camera_image_saved = False
 # ================= VIDEO EMOTION =================
+camera_image_saved = False
 @app.route('/analyze', methods=['POST'])
 def analyze():
     global camera_image_saved
@@ -313,8 +346,10 @@ def analyze():
 # ================= VOICE SYSTEM =================
 @app.route("/start", methods=["POST"])
 def start():
-    # patient_id = request.json.get("patient_id")
-    # session["patient_id"] = patient_id
+    if "patient_id" not in session:
+        return jsonify({"success": False, "message": "Login required"}), 401
+    
+    patient_id = session["patient_id"]
 
     session["q_index"] = 0
     session["responses"] = []
@@ -323,13 +358,11 @@ def start():
     session["questions"] = random.sample(questions, 5)
 
     return jsonify({
+        "success": True,
+        "status": "started",
         "patient_id": session["patient_id"],
-        "status": "started"
     })
-    return jsonify({
-        "patient_id": session["patient_id"],
-        "status": "started"
-    })
+
 
 @app.route("/question")
 def get_question():
@@ -738,18 +771,6 @@ def finish_voice():
         "audio_chart": chart_base64
     })
 
-# @app.route("/start_chat", methods=["POST"])
-# def start_chat():
-#     patient_id = request.json.get("patient_id")
-
-#     session["patient_id"] = patient_id
-#     session["q_index"] = 0
-#     session["responses"] = []
-#     session["predictions"] = []
-#     session["probabilities"] = []
-#     session["questions"] = random.sample(questions, 5)
-
-#     return jsonify({"status": "started"})
 
 @app.route("/question_chat")
 def get_question_chat():
@@ -769,96 +790,6 @@ def get_question_chat():
     else:
         return jsonify({"done": True})
 
-# @app.route("/answer_chat", methods=["POST"])
-# def submit_answer_chat():
-#     answer = request.json.get("answer")
-#     q_index = session["q_index"]
-
-#     pred, probs, _ = predict_with_probs(answer)
-
-#     session["responses"].append({
-#         "question": session["questions"][q_index],
-#         "answer": answer
-#     })
-
-#     session["predictions"].append(pred)
-#     session["probabilities"].append(probs)
-#     session["q_index"] += 1
-
-#     return jsonify({"status": "saved"})
-
-
-# @app.route("/finish_chat")
-# def finish_chat():
-#     prob_df = pd.DataFrame(session["probabilities"])
-#     mean_probs = prob_df.mean().to_dict()
-#     mean_probs = {cls: round(mean_probs.get(cls, 0) * 100, 2) for cls in classes}
-
-#     result = {"PatientID": session["patient_id"]}
-#     result.update(mean_probs)
-
-#     # Save database
-#     success = insert_into_mysql(result)
-
-#     # --------- CREATE ATTRACTIVE BAR CHART ----------
-
-#     labels = list(mean_probs.keys())
-#     values = list(mean_probs.values())
-
-#     # Custom colors for each emotion
-#     emotion_colors = {
-#         "Anger": "#e74c3c",
-#         "Anxiety": "#f39c12",
-#         "Depression": "#8e44ad",
-#         "Normal": "#2ecc71",
-#         "Personality disorder": "#3498db",
-#         "Sadness": "#5dade2",
-#         "Suicidal": "#2c3e50"
-#     }
-
-#     colors = [emotion_colors.get(label, "#6a11cb") for label in labels]
-
-#     plt.figure(figsize=(12, 6))
-#     bars = plt.bar(labels, values, color=colors)
-
-#     plt.ylim(0, 100)
-#     plt.ylabel("Probability (%)", fontsize=12, fontweight="bold")
-#     plt.title("Emotion Prediction Result", fontsize=16, fontweight="bold")
-
-#     # Rotate labels properly
-#     plt.xticks(rotation=30, ha='right', fontsize=11)
-#     plt.yticks(fontsize=11)
-
-#     # Add percentage values on top of bars
-#     for bar in bars:
-#         height = bar.get_height()
-#         plt.text(
-#             bar.get_x() + bar.get_width() / 2,
-#             height + 2,
-#             f'{height:.1f}%',
-#             ha='center',
-#             fontsize=10,
-#             fontweight='bold'
-#         )
-
-#     plt.grid(axis='y', linestyle='--', alpha=0.5)
-#     plt.tight_layout()
-
-#     img = io.BytesIO()
-#     plt.savefig(img, format='png', dpi=200, bbox_inches='tight')
-#     img.seek(0)
-#     plt.close()
-
-
-#     chart_base64 = base64.b64encode(img.getvalue()).decode()
-
-#     return jsonify({
-#         "result": result,
-#         "saved": success,
-#         "chart": chart_base64
-#     })
-
-    
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -14,7 +14,10 @@
 
             <!-- Start Section -->
             <div id="startSection">
-                <input id="pid" placeholder="Enter Patient ID">
+                <p>
+                    <strong>Patient ID:</strong>
+                    <span id="pid">{{ patient_id }}</span>
+                </p>
                 <button class="start-btn" onclick="start()">Start Session</button>
             </div>
 
@@ -49,9 +52,7 @@
     <script>
         async function start() {
             await fetch("/start", {
-                method: "POST",
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ patient_id: pid.value })
+                method: "POST"
             });
 
             document.getElementById("answer").innerText = "Speak your answer here...";
@@ -101,15 +102,28 @@
             const answerBox = document.getElementById("answer");
             answerBox.value = "Listening...";
 
-            let res = await fetch("/listen", { method: "POST" });
-            let data = await res.json();
+            try {
+                const res = await fetch("/listen", {
+                    method: "POST"
+                });
 
-            if (data.error) {
-                answerBox.value = data.error;
-                return;
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+
+                const data = await res.json();
+
+                if (data.error) {
+                    answerBox.value = data.error;
+                    return;
+                }
+
+                answerBox.value = data.text;
+
+            } catch (err) {
+                console.error(err);
+                answerBox.value = "Cannot connect to server.";
             }
-
-            answerBox.value = data.text;
         }
 
 
@@ -140,4 +154,4 @@
 
     </script>
 
-{% endblock content %}
+    {% endblock content %}

@@ -1,226 +1,259 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
 
-    <!-- ICON -->
-    <link rel="shortcut icon" href="static/dove.png" type="image/x-icon" />
-    <title>
-      {% block title %}Mind Space — Emotional Wellbeing Companion{% endblock %}
-    </title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+  <meta charset="UTF-8" />
 
-    <!-- SEO TAG -->
-    <!-- <meta
+  <!-- ICON -->
+  <link rel="shortcut icon" href="static/dove.png" type="image/x-icon" />
+  <title>
+    {% block title %}Mind Space — Emotional Wellbeing Companion{% endblock %}
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO TAG -->
+  <!-- <meta
       name="description"
       content="Mind Space — a calm, AI-assisted space to reflect on and understand your emotions through chat, voice and video sessions."
     /> -->
 
-    <!-- Google API for Font Optimisation -->
-    <!-- <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <!-- Google API for Font Optimisation -->
+  <!-- <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     /> -->
 
-    <!-- STYLE Tags -->
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='theme.css') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='home.css') }}"
-    />
+  <!-- STYLE Tags -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}" />
 
-    <!-- EXTRA Block for additional content in extended pages -->
-    {% block extra_head %} {% endblock %}
-  </head>
+  <!-- EXTRA Block for additional content in extended pages -->
+  {% block extra_head %} {% endblock %}
+</head>
 
-  <body>
-    <header class="site-header">
-      <nav class="nav">
-        <a class="brand" href="{{ url_for('home') }}"
-          ><span class="dot"></span>Mind Space</a
-        >
+<body>
+  <header class="site-header">
+    <nav class="nav">
+      <a class="brand" href="{{ url_for('home') }}"><span class="dot"></span>Mind Space</a>
 
-        <div class="nav-links">
-          <a
-            href="{{ url_for('about') }}"
-            class="{{ 'is-active' if request.endpoint == 'about' }}"
-            >About</a
-          >
-          <a
-            href="{{ url_for('contact') }}"
-            class="{{ 'is-active' if request.endpoint == 'contact' }}"
-            >Contact</a
-          >
-          <a
-            href="{{ url_for('chat') }}"
-            class="{{ 'is-active' if request.endpoint == 'chat' }}"
-            >Text Session</a
-          >
-          <a
-            href="{{ url_for('voice') }}"
-            class="{{ 'is-active' if request.endpoint == 'voice' }}"
-            >Voice Session</a
-          >
-          <a
-            href="{{ url_for('video') }}"
-            class="{{ 'is-active' if request.endpoint == 'video' }}"
-            >Video Session</a
-          >
-          <!-- CONDITIONAL NAVIGATION LOGIC -->
-          {% if session.get('user_name') %}
-            <!-- Logged In State -->
-            <div class="user-profile-dropdown">
-              <button class="profile-trigger-btn" type="button">
-                <img
-                  class="profile-avatar"
-                  src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed={{ session.get('user_id') }}"
-                  alt="User Avatar"
-                />
-                <div class="profile-meta">
-                  <span class="profile-name">{{ session.get('user_name') }}</span>
-                  <span class="profile-id">
-                    ID: #{{ session.get('user_id') }}
-                  </span>
-                </div>
-              </button>
+      <div class="nav-links">
+        <a href="{{ url_for('about') }}" class="{{ 'is-active' if request.endpoint == 'about' }}">About</a>
+        <a href="{{ url_for('contact') }}" class="{{ 'is-active' if request.endpoint == 'contact' }}">Contact</a>
+        <a href="{{ url_for('chat') }}" class="{{ 'is-active' if request.endpoint == 'chat' }}">Text Session</a>
+        <a href="{{ url_for('voice') }}" class="{{ 'is-active' if request.endpoint == 'voice' }}">Voice Session</a>
+        <a href="{{ url_for('video') }}" class="{{ 'is-active' if request.endpoint == 'video' }}">Video Session</a>
+        <!-- CONDITIONAL NAVIGATION LOGIC -->
+        {% if session.get('user_name') %}
+        <!-- Logged In State -->
+        <div class="user-profile-dropdown">
+          <button class="profile-trigger-btn" type="button">
+            <img class="profile-avatar"
+              src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed={{ session.get('patient_id') }}"
+              alt="User Avatar" />
+            <div class="profile-meta">
+              <span class="profile-name" id="profileName">
+                {{ session.get('user_name', '') }}
+              </span>
 
-              <div class="dropdown-menu-panel">
-                <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
-              </div>
+              <span class="profile-id" id="profileId">
+                ID: {{ session.get('patient_id', '') }}
+              </span>
             </div>
-          {% else %}
-            <!-- Guest / Not Logged In State -->
-            <a href="{{ url_for('register') }}" class="nav-cta">Get Started</a>
+          </button>
 
-            <div class="user-profile-dropdown">
-              <button class="profile-trigger-btn fallback-guest" type="button">
-                <img
-                  class="profile-avatar"
-                  src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed=guest"
-                  alt="Guest Avatar"
-                />
-                <div class="profile-meta">
-                  <span class="profile-name">Guest Identity</span>
-                </div>
-              </button>
-              <div class="dropdown-menu-panel">
-                <a class="dropdown-item" href="{{ url_for('register') }}"
-                  >Login / Register</a
-                >
-              </div>
+          <div class="dropdown-menu-panel">
+            <a class="dropdown-item" onclick="logoutUser(event)">Logout</a>
+          </div>
+        </div>
+        {% else %}
+        <!-- Guest / Not Logged In State -->
+        <a href="{{ url_for('register') }}" class="nav-cta">Get Started</a>
+
+        <div class="user-profile-dropdown">
+          <button class="profile-trigger-btn fallback-guest" type="button">
+            <img class="profile-avatar" src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed=guest"
+              alt="Guest Avatar" />
+            <div class="profile-meta">
+              <span class="profile-name">Guest</span>
             </div>
-          {% endif %}
-          <!-- END CONDITIONAL NAVIGATION LOGIC -->
-        </div>
-      </nav>
-    </header>
-
-    <main>
-      {% block content %}
-      <section class="hero hero-banner">
-        <div class="wrap hero-inner">
-          <span class="eyebrow">A gentle, AI-assisted space</span>
-          <h1>You're Safe Here.</h1>
-          <p class="subtitle" style="color: aliceblue;">
-            A quiet space to understand your thoughts, explore your emotions,
-            and move gently toward clarity — through conversation, voice, or
-            video.
-          </p>
-          <div class="hero-actions">
-            <a href="{{ url_for('register') }}"
-              ><button class="btn btn-primary">Begin Gently</button></a
-            >
-            <a href="{{ url_for('about') }}"
-              ><button class="btn btn-secondary">Learn How It Works</button></a
-            >
+          </button>
+          <div class="dropdown-menu-panel">
+            <a class="dropdown-item" href="{{ url_for('register') }}">Login / Register</a>
           </div>
-          <p class="hero-tag">one small step at a time</p>
         </div>
-      </section>
+        {% endif %}
+        <!-- END CONDITIONAL NAVIGATION LOGIC -->
+      </div>
+    </nav>
+  </header>
 
-      <section class="wrap">
-        <div class="modes-grid">
-          <span class="eyebrowBtn" style="background: #c8dcba">
-            <a class="mode-card" href="{{ url_for('chat') }}">
-              <div class="mode-icon mode-icon--sand">💬</div>
-              <h3>Text Session</h3>
-              <p>Write at your own pace through a short, guided reflection.</p>
-            </a>
-          </span>
-          <span class="eyebrowBtn" style="background: #c3c1da">
-            <a class="mode-card" href="{{ url_for('voice') }}">
-              <div class="mode-icon mode-icon--sky">🎙️</div>
-              <h3>Voice Session</h3>
-              <p>
-                Speak your answers aloud for a more natural, conversational
-                feel.
-              </p>
-            </a>
-          </span>
-          <span class="eyebrowBtn" style="background: #B4D4DA">
-            <a class="mode-card" href="{{ url_for('video') }}">
-              <div class="mode-icon mode-icon--lilac">🎥</div>
-              <h3>Video Session</h3>
-              <p>
-                Combine voice with gentle facial-expression insights in real
-                time.
-              </p>
-            </a>
-          </span>
+  <main>
+    {% block content %}
+    <section class="hero hero-banner">
+      <div class="wrap hero-inner">
+        <span class="eyebrow">A gentle, AI-assisted space</span>
+        <h1>You're Safe Here.</h1>
+        <p class="subtitle" style="color: aliceblue;">
+          A quiet space to understand your thoughts, explore your emotions,
+          and move gently toward clarity — through conversation, voice, or
+          video.
+        </p>
+        <div class="hero-actions">
+          <a href="{{ url_for('register') }}"><button class="btn btn-primary">Begin Gently</button></a>
+          <a href="{{ url_for('about') }}"><button class="btn btn-secondary">Learn How It Works</button></a>
         </div>
-      </section>
+        <p class="hero-tag">one small step at a time</p>
+      </div>
+    </section>
 
-      <section class="wrap">
-        <div class="features-grid">
-          <div class="section feature">
-            <div class="feature-icon">🌿</div>
-            <h3>Slow &amp; Simple</h3>
+    <section class="wrap">
+      <div class="modes-grid">
+        <span class="eyebrowBtn" style="background: #c8dcba">
+          <a class="mode-card" href="{{ url_for('chat') }}">
+            <div class="mode-icon mode-icon--sand">💬</div>
+            <h3>Text Session</h3>
+            <p>Write at your own pace through a short, guided reflection.</p>
+          </a>
+        </span>
+        <span class="eyebrowBtn" style="background: #c3c1da">
+          <a class="mode-card" href="{{ url_for('voice') }}">
+            <div class="mode-icon mode-icon--sky">🎙️</div>
+            <h3>Voice Session</h3>
             <p>
-              No overwhelming dashboards. No pressure. Just thoughtful questions
-              and supportive guidance designed to meet you where you are.
+              Speak your answers aloud for a more natural, conversational
+              feel.
             </p>
-          </div>
-          <div class="section feature">
-            <div class="feature-icon">🕊</div>
-            <h3>Private &amp; Respectful</h3>
+          </a>
+        </span>
+        <span class="eyebrowBtn" style="background: #B4D4DA">
+          <a class="mode-card" href="{{ url_for('video') }}">
+            <div class="mode-icon mode-icon--lilac">🎥</div>
+            <h3>Video Session</h3>
             <p>
-              Your reflections are handled with care. This space is meant to
-              feel personal, safe, and entirely yours.
+              Combine voice with gentle facial-expression insights in real
+              time.
             </p>
-          </div>
-          <div class="section feature">
-            <div class="feature-icon">🌅</div>
-            <h3>Small Steps Matter</h3>
-            <p>
-              Healing isn't instant. Awareness is the first step. And you've
-              already taken it by being here.
-            </p>
-          </div>
-        </div>
-      </section>
-      {% endblock %}
-    </main>
+          </a>
+        </span>
+      </div>
+    </section>
 
-    <footer class="site-footer">
-      <div class="wrap">
-        <div>
-          <div class="foot-brand">Mind Space</div>
-          <p class="foot-note">
-            Built with empathy &amp; thoughtful technology. Not a replacement
-            for professional medical or psychological care.
+    <section class="wrap">
+      <div class="features-grid">
+        <div class="section feature">
+          <div class="feature-icon">🌿</div>
+          <h3>Slow &amp; Simple</h3>
+          <p>
+            No overwhelming dashboards. No pressure. Just thoughtful questions
+            and supportive guidance designed to meet you where you are.
           </p>
         </div>
-        <div class="foot-links">
-          <a href="{{ url_for('about') }}">About</a>
-          <a href="{{ url_for('contact') }}">Contact</a>
-          <a href="{{ url_for('register') }}">Get Started</a>
+        <div class="section feature">
+          <div class="feature-icon">🕊</div>
+          <h3>Private &amp; Respectful</h3>
+          <p>
+            Your reflections are handled with care. This space is meant to
+            feel personal, safe, and entirely yours.
+          </p>
+        </div>
+        <div class="section feature">
+          <div class="feature-icon">🌅</div>
+          <h3>Small Steps Matter</h3>
+          <p>
+            Healing isn't instant. Awareness is the first step. And you've
+            already taken it by being here.
+          </p>
         </div>
       </div>
-    </footer>
-  </body>
+    </section>
+    {% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div>
+        <div class="foot-brand">Mind Space</div>
+        <p class="foot-note">
+          Built with empathy &amp; thoughtful technology. Not a replacement
+          for professional medical or psychological care.
+        </p>
+      </div>
+      <div class="foot-links">
+        <a href="{{ url_for('about') }}">About</a>
+        <a href="{{ url_for('contact') }}">Contact</a>
+        <a href="{{ url_for('register') }}">Get Started</a>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- JS portion -->
+  <script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+      const user = JSON.parse(localStorage.getItem("loggedUser"));
+
+      if (!user)
+        return;
+
+      // Check expiry
+      if (Date.now() > user.expiry) {
+
+        logoutWithoutRedirect();
+
+        return;
+      }
+
+      // Update Name
+      const name = document.getElementById("profileName").textContent = "Hi, " + user.first_name;
+
+      if (name) {
+        name.textContent = user.first_name;
+      }
+
+      // Update Patient ID
+      const id = document.getElementById("profileId");
+
+      if (id) {
+        id.textContent = "ID: " + user.patient_id;
+      }
+
+    });
+
+    function logoutUser(event) {
+
+      event.preventDefault();
+
+      fetch("/logout", {
+        method: "POST"
+      })
+        .then(res => res.json())
+        .then(data => {
+
+          localStorage.removeItem("loggedUser");
+
+          window.location.href = "/";
+
+        });
+
+    }
+
+    function logoutWithoutRedirect() {
+
+      fetch("/logout", {
+        method: "POST"
+      });
+
+      localStorage.removeItem("loggedUser");
+
+      location.reload();
+
+    }
+
+  </script>
+</body>
+
 </html>

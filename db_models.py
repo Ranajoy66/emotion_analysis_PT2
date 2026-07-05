@@ -46,7 +46,7 @@ class User(Base):
 
     fullname = Column(String(100), unique=True, nullable=False)
 
-    username = Column(String(100), unique=True, nullable=False)
+    # username = Column(String(100), unique=True, nullable=False)
 
     email = Column(String(150), unique=True, nullable=False)
 
