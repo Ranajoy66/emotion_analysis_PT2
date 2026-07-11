@@ -50,10 +50,10 @@
         <div class="user-profile-dropdown">
           <button class="profile-trigger-btn" type="button">
             <img class="profile-avatar"
-              src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed={{ session.get('patient_id') }}"
+              src="./static/patient.png?seed={{ session.get('patient_id') }}"
               alt="User Avatar" />
             <div class="profile-meta">
-              <span class="profile-name" id="profileName">
+              <span class="profile-name" id=" ">
                 {{ session.get('user_name', '') }}
               </span>
 
@@ -73,7 +73,7 @@
 
         <div class="user-profile-dropdown">
           <button class="profile-trigger-btn fallback-guest" type="button">
-            <img class="profile-avatar" src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed=guest"
+            <img class="profile-avatar" src="./static/guest_m.png?seed=guest"
               alt="Guest Avatar" />
             <div class="profile-meta">
               <span class="profile-name">Guest</span>
@@ -101,7 +101,7 @@
           video.
         </p>
         <div class="hero-actions">
-          <a href="{{ url_for('register') }}"><button class="btn btn-primary">Begin Gently</button></a>
+          <!-- <a href="{{ url_for('register') }}"><button class="btn btn-primary">Begin Gently</button></a> -->
           <a href="{{ url_for('about') }}"><button class="btn btn-secondary">Learn How It Works</button></a>
         </div>
         <p class="hero-tag">one small step at a time</p>

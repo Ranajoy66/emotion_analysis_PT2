@@ -114,10 +114,14 @@ p {
   color: #2e2e2e;
 }
 .brand .dot {
-  width: 11px;
-  height: 11px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), var(--calm));
+  margin-right: 15px;
+  /* background: linear-gradient(135deg, var(--accent), var(--calm)); */
+  background: url(./dove.png);
+  background-size: cover;
+  background-position: center;
 }
 .nav-links {
   display: flex;
@@ -139,6 +143,11 @@ p {
   color: var(--text-primary);
   transform: translateY(-2px);
 }
+
+.nav-links a.is-active {
+  border: 1px solid var(--accent-hover);
+}
+
 .nav-links a.nav-cta {
   background: var(--text-primary);
   color: #fff;
@@ -399,6 +408,16 @@ p {
   font-size: 2rem;
 }
 
+/* Voice card*/
+.card {
+  background: white;
+  padding: 35px;
+  border-radius: 18px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  margin-bottom: 30px;
+  animation: fadeIn 0.6s ease-in-out;
+}
+
 /* --- Footer --- */
 .site-footer {
   margin-top: auto;
@@ -468,14 +487,65 @@ p {
   border-width: 0;
 }
 
-.main-container{
-  padding: 0 10%;
+.main-container {
+  width: auto;
+  height: 100vh;
+  padding: 5% 10% 0;
   text-align: center;
+  background: url(./Peace.jpg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.main-container-contact {
+  /* margin: 10% 10% 0 10%; */
+  margin-top: 5%;
+  text-align: center;
+  color: white;
+  /* background: rgba(141, 247, 219, 0.8); */
+  background: #2a7b9b;
+  background: linear-gradient(
+    90deg,
+    rgba(42, 123, 155, 0.7) 0%,
+    rgba(87, 199, 133, 0.7) 50%,
+    rgba(237, 221, 83, 0.7) 100%
+  );
+  /* opacity: 0.7; */
+  padding: 5% 10% 0 10%;
+  border-radius: 20px 20px 0 0;
+}
+
+.main-container-contact p {
+  color: white;
+  padding-bottom: 10px;
+}
+
+.info-section p {
+  margin-bottom: 0;
+  font-style: italic;
+}
+
+.form-row {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.form-row span {
+  flex: 1;
+}
+
+.message-field {
+  text-align: left;
 }
 
 .submit-btn {
-  background-color: #63c666;
-  border: none;
+  background-color: #479f4a;
+  border: 0.5px solid #2b612c;
+  box-shadow: #000000 0px 1px 1px;
   color: white;
   border-radius: 40px;
   padding: 10px 30px;
@@ -485,4 +555,29 @@ p {
   font-size: 16px;
   margin: 4px 2px;
   cursor: pointer;
+}
+
+.submit-btn:hover {
+  background-color: #5bc55f;
+  opacity: 1;
+}
+
+/* CHAT */
+.result-card {
+  text-align: center;
+}
+
+.result-card img {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 700px;
+  margin-top: 20px;
+}
+
+#resultContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

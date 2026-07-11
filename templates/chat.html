@@ -1,9 +1,4 @@
 {% extends "base.html" %} {% block content %}
-<section>
-    <!-- <title>Emotion Counselling</title> -->
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0" /> -->
-    <link rel="stylesheet" href="/static/style_chat.css" />
-</section>
 
 <div class="main-container">
     <!-- Survey Card -->
@@ -16,7 +11,7 @@
                 <strong>Patient ID:</strong>
                 <span id="pid">{{ patient_id }}</span>
             </p>
-            <button class="primary-btn" onclick="start()">Start Session</button>
+            <button class="start-btn" onclick="start()">Start Session</button>
         </div>
 
         <!-- Question Section -->
@@ -27,7 +22,7 @@
 
             <textarea id="answer" placeholder="Type your answer here..."></textarea>
 
-            <button class="primary-btn" onclick="next()">Next</button>
+            <button class="next-btn" onclick="next()">Next</button>
         </div>
     </div>
 

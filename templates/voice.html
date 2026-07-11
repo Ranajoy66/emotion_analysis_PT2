@@ -1,157 +1,151 @@
 {% extends "base.html" %} {% block content %}
+<div class="main-container">
+  <!-- Survey Card -->
+  <div class="card" id="surveyCard">
+    <h3>Emotional Counselling Survey</h3>
 
-<head>
-    <link rel="stylesheet" href="/static/style_voice.css">
-</head>
-
-<body>
-
-    <div class="main-container">
-
-        <!-- Survey Card -->
-        <div class="card" id="surveyCard">
-            <h3>Emotional Counselling Survey</h3>
-
-            <!-- Start Section -->
-            <div id="startSection">
-                <p>
-                    <strong>Patient ID:</strong>
-                    <span id="pid">{{ patient_id }}</span>
-                </p>
-                <button class="start-btn" onclick="start()">Start Session</button>
-            </div>
-
-            <!-- Question Section -->
-            <div id="survey" style="display:none;">
-                <div class="question-box">
-                    <h3 id="question"></h3>
-                </div>
-
-                <textarea id="answer" placeholder="Speak your answer here..." readonly></textarea>
-
-                <div class="action-buttons">
-                    <button type="button" class="speak-btn" onclick="startListening()">Speak</button>
-                    <button class="next-btn" id="nextBtn" onclick="next()">Next</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Result Section (Below Survey) -->
-        <div class="card result-card" id="resultContainer" style="display:none;">
-            <h3>Emotion Prediction Result</h3>
-            <img id="chartImage" />
-        </div>
-
-        <div id="loaderContainer" style="display:none;">
-            <div class="loader"></div>
-            <h2>Generating Emotion Analysis Response...</h2>
-        </div>
-
+    <!-- Start Section -->
+    <div id="startSection">
+      <p>
+        <strong>Patient ID:</strong>
+        <span id="pid">{{ patient_id }}</span>
+      </p>
+      <button class="start-btn" onclick="start()">Start Session</button>
     </div>
 
-    <script>
-        async function start() {
-            await fetch("/start", {
-                method: "POST"
-            });
+    <!-- Question Section -->
+    <div id="survey" style="display: none">
+      <div class="question-box">
+        <h3 id="question"></h3>
+      </div>
 
-            document.getElementById("answer").innerText = "Speak your answer here...";
-            document.getElementById("startSection").style.display = "none";
-            document.getElementById("survey").style.display = "block";
-            loadQuestion();
-        }
+      <textarea
+        id="answer"
+        placeholder="Speak your answer here..."
+        readonly
+      ></textarea>
 
-        async function loadQuestion() {
-            let r = await fetch("/question");
+      <div class="action-buttons">
+        <button type="button" class="speak-btn" onclick="startListening()">
+          Speak
+        </button>
+        <button class="next-btn" id="nextBtn" onclick="next()">Next</button>
+      </div>
+    </div>
+  </div>
 
-            let d = await r.json();
+  <!-- Result Section (Below Survey) -->
+  <div class="card result-card" id="resultContainer" style="display: none">
+    <h3>Emotion Prediction Result</h3>
+    <img id="chartImage" />
+  </div>
 
-            if (d.done) {
-                // HIDE QUESTION SECTION
-                document.getElementById("survey").style.display = "none";
+  <div id="loaderContainer" style="display: none">
+    <div class="loader"></div>
+    <h2>Generating Emotion Analysis Response...</h2>
+  </div>
+</div>
 
-                // SHOW LOADER
-                document.getElementById("loaderContainer").style.display = "flex";
+<script>
+  async function start() {
+    await fetch("/start", {
+      method: "POST",
+    });
 
-                // WAIT FOR FINAL RESULT
-                let res = await fetch("/finish_voice");
-                let out = await res.json();
+    document.getElementById("answer").innerText = "Speak your answer here...";
+    document.getElementById("startSection").style.display = "none";
+    document.getElementById("survey").style.display = "block";
+    loadQuestion();
+  }
 
-                // HIDE LOADER
-                document.getElementById("loaderContainer").style.display = "none";
+  async function loadQuestion() {
+    let r = await fetch("/question");
 
-                // SHOW RESULT
-                document.getElementById("resultContainer").style.display = "block";
+    let d = await r.json();
 
-                document.getElementById("chartImage").src =
-                    "data:image/png;base64," + out.audio_chart;
+    if (d.done) {
+      // HIDE QUESTION SECTION
+      document.getElementById("survey").style.display = "none";
 
-                return;
-            }
+      // SHOW LOADER
+      document.getElementById("loaderContainer").style.display = "flex";
 
-            document.getElementById("question").innerText = "Q" + d.index + ". " + d.question;;
+      // WAIT FOR FINAL RESULT
+      let res = await fetch("/finish_voice");
+      let out = await res.json();
 
-            // button changes to Submit while last question
-            const nextBtn = document.getElementById("nextBtn");
-            nextBtn.innerText = (d.index === d.total) ? "Submit" : "Next";
-        }
+      // HIDE LOADER
+      document.getElementById("loaderContainer").style.display = "none";
 
-        async function startListening() {
-            // e.preventDefault();
+      // SHOW RESULT
+      document.getElementById("resultContainer").style.display = "block";
 
-            const answerBox = document.getElementById("answer");
-            answerBox.value = "Listening...";
+      document.getElementById("chartImage").src =
+        "data:image/png;base64," + out.audio_chart;
 
-            try {
-                const res = await fetch("/listen", {
-                    method: "POST"
-                });
+      return;
+    }
 
-                if (!res.ok) {
-                    throw new Error(`HTTP ${res.status}`);
-                }
+    document.getElementById("question").innerText =
+      "Q" + d.index + ". " + d.question;
 
-                const data = await res.json();
+    // button changes to Submit while last question
+    const nextBtn = document.getElementById("nextBtn");
+    nextBtn.innerText = d.index === d.total ? "Submit" : "Next";
+  }
 
-                if (data.error) {
-                    answerBox.value = data.error;
-                    return;
-                }
+  async function startListening() {
+    // e.preventDefault();
 
-                answerBox.value = data.text;
+    const answerBox = document.getElementById("answer");
+    answerBox.value = "Listening...";
 
-            } catch (err) {
-                console.error(err);
-                answerBox.value = "Cannot connect to server.";
-            }
-        }
+    try {
+      const res = await fetch("/listen", {
+        method: "POST",
+      });
 
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
 
-        // let currentIndex = 0;
+      const data = await res.json();
 
-        async function next() {
+      if (data.error) {
+        answerBox.value = data.error;
+        return;
+      }
 
-            const answerBox = document.getElementById("answer");
-            const userAnswer = answer.value.trim();
-            if (!userAnswer) return;
+      answerBox.value = data.text;
+    } catch (err) {
+      console.error(err);
+      answerBox.value = "Cannot connect to server.";
+    }
+  }
 
-            await fetch("/answer", {
-                method: "POST",
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    answer: userAnswer,
-                    // index: currentIndex
-                })
-            });
+  // let currentIndex = 0;
 
-            // currentIndex++;
+  async function next() {
+    const answerBox = document.getElementById("answer");
+    const userAnswer = answer.value.trim();
+    if (!userAnswer) return;
 
-            answerBox.value = ""
-            answerBox.placeholder = "Speak your answer here..."
+    await fetch("/answer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        answer: userAnswer,
+        // index: currentIndex
+      }),
+    });
 
-            loadQuestion();
-        }
+    // currentIndex++;
 
-    </script>
+    answerBox.value = "";
+    answerBox.placeholder = "Speak your answer here...";
 
-    {% endblock content %}
+    loadQuestion();
+  }
+</script>
+
+{% endblock content %}
