@@ -355,7 +355,7 @@ def start():
     session["responses"] = []
     session["predictions"] = []
     session["probabilities"] = []
-    session["questions"] = random.sample(questions, 5)
+    session["questions"] = random.sample(questions, 10)
 
     return jsonify({
         "success": True,

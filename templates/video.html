@@ -3,7 +3,7 @@ endblock %} {% block content %}
 
 <div class="card" id="surveyCard">
 
-  <h2 style="color: #3c3a33;">Emotional Counselling Survey</h2>
+  <h2 style="color: #3c3a33; text-align: center;">Emotional Counselling Survey</h2>
   <div class="session-wrapper">
 
     <!-- AI -->
@@ -37,14 +37,22 @@ endblock %} {% block content %}
   </div>
 
   <div id="startSection">
-    <p>
+    <p style="text-align: center;">
       <strong>Patient ID:</strong>
       <span id="pid">{{ patient_id }}</span>
     </p>
 
-    <button class="start-btn" onclick="startSession()">
-      Start Session
-    </button>
+    <div class="btn-container"
+    style="
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    "
+    >
+      <button class="start-btn" onclick="startSession()">
+        Start Session
+      </button>
+    </div>
   </div>
 
   <div id="survey" style="display: none">
@@ -70,7 +78,7 @@ endblock %} {% block content %}
   </div>
 </div>
 
-<div class="card result-card" id="resultContainer" style="display: none">
+<div class="card result-card" id="resultContainer" style="display: none;">
   <h3>Emotion Prediction Result Based on Voice Interaction</h3>
   <img id="chartImage" />
   <!-- Video Emotion Chart -->

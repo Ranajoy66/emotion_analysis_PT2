@@ -190,8 +190,8 @@ h1 {
 
 /* --- Functional Form Interfaces (Survey System) --- */
 #surveyCard {
-  width: 100%;
-  max-width: 680px;
+  width: 70%;
+  /* max-width: 680px; */
   margin: 30px auto;
   padding: 35px 30px;
   border-radius: 24px;

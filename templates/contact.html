@@ -8,36 +8,47 @@
   </p>
 
   <div class="main-container-contact">
-    <form method="POST" action="#">
-      <div class="form-row">
-        <span>
-          <label>Your Name</label>
-          <input type="text" name="name" placeholder="Enter your name" />
-        </span>
 
-        <span>
-          <label>Email Address</label>
-          <input type="email" name="email" placeholder="Enter your email" />
-        </span>
+    <div class="form-container">
+
+      <form method="POST" action="#">
+
+        <!-- <h2 class="contact-title">Talk to Us</h2> -->
+
+        <div class="form-row">
+
+          <span>
+            <label>Your Name</label>
+            <input type="text" name="name" placeholder="Enter your name">
+          </span>
+
+          <span>
+            <label>Email Address</label>
+            <input type="email" name="email" placeholder="Enter your email">
+          </span>
+
+        </div>
+
+        <div class="message-field">
+          <label>Your Message</label>
+          <textarea name="message" placeholder="Share your thoughts..."></textarea>
+        </div>
+
+        <button class="submit-btn">
+          Send Message
+        </button>
+
+      </form>
+
+      <div class="info-section">
+        <p>
+          Please note: Mind Space is an AI-based emotional analysis tool.
+          It is not a replacement for professional medical or psychological
+          advice.
+        </p>
       </div>
 
-      <div class="message-field">
-        <label>Your Message</label>
-        <textarea
-          name="message"
-          placeholder="Share your thoughts..."
-        ></textarea>
-      </div>
-
-      <button class="submit-btn">Send Message</button>
-    </form>
-
-    <div class="info-section">
-      <p>
-        Please note: Mind Space is an AI-based emotional analysis tool. It is
-        not a replacement for professional medical or psychological advice.
-      </p>
     </div>
+
   </div>
-</div>
-{% endblock content %}
+  {% endblock content %}

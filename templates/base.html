@@ -53,7 +53,7 @@
               src="./static/patient.png?seed={{ session.get('patient_id') }}"
               alt="User Avatar" />
             <div class="profile-meta">
-              <span class="profile-name" id=" ">
+              <span class="profile-name" id="profile-name">
                 {{ session.get('user_name', '') }}
               </span>
 
@@ -208,7 +208,7 @@
       }
 
       // Update Name
-      const name = document.getElementById("profileName").textContent = "Hi, " + user.first_name;
+      const name = document.getElementById("profile-name").textContent = "Hi, " + user.first_name;
 
       if (name) {
         name.textContent = user.first_name;
