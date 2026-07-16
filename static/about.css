@@ -1,0 +1,140 @@
+.container {
+  max-width: 900px;
+  margin: 0 auto 0 auto;
+  padding: 80px 20px;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 70px;
+}
+
+.hero h1 {
+  font-weight: 600;
+  font-size: 42px;
+  margin-bottom: 15px;
+  /* color: #2c3e50; Darker tone for readability against the light background */
+  color: white; /* Or your lightest palette color */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.hero p {
+  font-size: 18px;
+  color: #555555;
+  line-height: 1.7;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.section {
+  margin-bottom: 60px;
+  background: rgba(195, 193, 218, 0.4); /* #C3C1DA */
+  backdrop-filter: blur(8px);
+  padding: 35px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  margin-top: 40px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 18px;
+  color: #2c3e50;
+}
+
+.section h3 {
+  font-weight: 600;
+  font-size: 24px;
+  margin-bottom: 15px;
+  /* color: #333333; */
+  /* color: white; */
+  color: #2c3e50;
+  /* text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); */
+}
+
+.section p {
+  line-height: 1.8;
+  /* color: #4f4f4f; */
+  color: white; /* Or your lightest palette color */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  font-size: 17px;
+}
+
+.highlight-box {
+  /* Using the soft lavender with transparency for a glassmorphism effect
+  background: rgba(195, 193, 218, 0.4); #C3C1DA
+  backdrop-filter: blur(8px);
+  padding: 35px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  margin-top: 40px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 18px; */
+  color: white;
+}
+
+.values {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.value-card {
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+  color: #2b2b2b;
+}
+
+.value-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Applying distinct palette colors to each value card */
+.value-card:nth-child(1) {
+  background: #eed4af; /* Warm beige for Compassion */
+}
+
+.value-card:nth-child(2) {
+  background: #b4d4da; /* Soft blue for Privacy */
+}
+
+.value-card:nth-child(3) {
+  background: #c3c1da; /* Lavender for Clarity */
+}
+
+.value-card h4 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-weight: 600;
+  font-size: 20px;
+}
+
+.value-card p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #3d3d3d;
+}
+
+footer {
+  margin-top: 80px;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 32px;
+  }
+  .container {
+    padding: 50px 20px;
+  }
+}

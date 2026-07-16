@@ -1,0 +1,95 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="main-container">
+    <!-- Survey Card -->
+    <div class="card" id="surveyCard">
+        <h3>Emotional Counselling Survey</h3>
+
+        <!-- Start Section -->
+        <div id="startSection">
+            <p>
+                <strong>Patient ID:</strong>
+                <span id="pid">{{ patient_id }}</span>
+            </p>
+            <button class="start-btn" onclick="start()">Start Session</button>
+        </div>
+
+        <!-- Question Section -->
+        <div id="survey" style="display: none">
+            <div class="question-box">
+                <h3 id="question"></h3>
+            </div>
+
+            <textarea id="answer" placeholder="Type your answer here..."></textarea>
+
+            <button class="next-btn" onclick="next()">Next</button>
+        </div>
+    </div>
+
+    <!-- Result Section (Below Survey) -->
+    <div class="card result-card" id="resultContainer" style="display: none">
+        <h3>Emotion Prediction Result</h3>
+        <img id="chartImage" />
+    </div>
+
+    <div id="loaderContainer" style="display: none">
+        <div class="loader"></div>
+        <h2>Generating Emotion Analysis Response...</h2>
+    </div>
+</div>
+
+<script>
+    async function start() {
+        await fetch("/start", {
+                method: "POST"
+            });
+
+
+        document.getElementById("startSection").style.display = "none";
+        document.getElementById("survey").style.display = "block";
+        loadQuestion();
+    }
+
+    async function loadQuestion() {
+        let r = await fetch("/question_chat");
+        let d = await r.json();
+
+        if (d.done) {
+            // HIDE QUESTION SECTION
+            document.getElementById("survey").style.display = "none";
+
+            // SHOW LOADER
+            document.getElementById("loaderContainer").style.display = "flex";
+
+            // WAIT FOR FINAL RESULT
+            let res = await fetch("/finish_chat");
+            let out = await res.json();
+
+            // HIDE LOADER
+            document.getElementById("loaderContainer").style.display = "none";
+
+            // SHOW RESULT
+            document.getElementById("resultContainer").style.display = "block";
+
+            document.getElementById("chartImage").src =
+                "data:image/png;base64," + out.chat_chart;
+
+            return;
+        }
+
+        document.getElementById("question").innerText =
+            "Q" + d.index + ". " + d.question;
+    }
+
+    async function next() {
+        await fetch("/answer", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ answer: answer.value }),
+        });
+
+        answer.value = "";
+        loadQuestion();
+    }
+</script>
+{% endblock content %}
