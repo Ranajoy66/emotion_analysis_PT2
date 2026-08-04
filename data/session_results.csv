@@ -1,0 +1,4 @@
+PatientID,Anxiety,Bipolar,Depression,Normal,Personality disorder,Stress,Suicidal,Anger,Sadness
+P0001,10.92,0.29,18.38,56.28,0.32,0.74,13.07,,
+P0001,1.11,0.56,12.37,79.47,0.51,1.17,4.82,,
+P0001,0.52,,4.57,90.43,0.32,,3.78,0.16,0.22
