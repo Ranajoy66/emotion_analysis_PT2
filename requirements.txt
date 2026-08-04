@@ -18,5 +18,5 @@ tensorflow==2.16.1
 tf-keras==2.16.0
 deepface==0.0.95
 SpeechRecognition
-#pyaudio
-#pyttsx3
+pyaudio
+pyttsx3
