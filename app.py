@@ -118,8 +118,8 @@ def insert_video_data(patient_id, video_percentages):
 def generate_patient_id(user_id):
     return f"PAT{user_id:06d}"
 
-def generate_patient_id(user_id):
-    return f"PAT{user_id:06d}"
+# def generate_patient_id(user_id):
+#     return f"PAT{user_id:06d}"
 
 @app.route("/")
 def home():
@@ -792,4 +792,4 @@ def get_question_chat():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
